@@ -1,0 +1,157 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    color: #000;
+    background: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h3 {
+  margin-bottom: 8px;
+}
+/* Message styles */
+.message {
+    position: relative;
+}
+
+.message:hover {
+    background-color: #f9f9f9;
+}
+
+.message:hover .delete-btn {
+    opacity: 1;
+}
+
+.message-line {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.time {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+    margin-right: 8px;
+}
+
+.sender {
+    font-weight: 600;
+    margin-right: 8px;
+    color: #000;
+}
+
+.text {
+    font-weight: 400;
+    color: #333;
+    flex: 1;
+}
+
+/* Delete button (admin only) */
+.delete-btn {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 50px;
+    height: 20px;
+    color: #fe0000;
+    opacity: 0;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    background: #ccc;
+    color: #333;
+}
+
+/* input area */
+.input-area {
+    border-top: 1px solid #e5e5e5;
+    padding-top: 6px;
+    margin-top: 6px;
+}
+
+.input-field {
+    flex: 1;
+    min-width: 200px;
+    width: 100%;
+    padding: 6px 10px;
+    margin: 5px 0px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #666;
+}
+
+.send-btn {
+    padding: 6px 10px;
+    margin: 5px 0px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.send-btn:hover {
+    background: #333;
+}
+
+/* Footer */
+footer {
+    padding-top: 15px;
+    font-size: 13px;
+    color: #888;
+}
+
+/* Responsive */
+    @media (max-width: 600px) {
+        body {
+            padding: 15px;
+        }
+        
+        .message-line {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .time {
+            margin-bottom: 2px;
+        }
+        
+        .send-btn {
+            width: 100%;
+            float: none;
+        }
+    }
+    
+    /* For very small screens */
+    @media (max-width: 400px) {
+        body {
+            padding: 10px;
+        }
+        
+        .input-field {
+            padding: 6px 10px;
+        }
+        
+        textarea.input-field {
+            min-height: 50px;
+        }
+      }
