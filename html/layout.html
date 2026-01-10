@@ -11,49 +11,29 @@
 <body>
   <h3>leave me a message or chat with someone</h3>
 
+  {{range .Msgs}}
   <div class="chat-container">
-    <!-- Message 1 -->
     <div class="message">
       <div class="message-line">
-        <span class="time">14:32 03/15</span>
-        <span class="sender">alex:</span>
-        <span class="text">hello everyone!!!!!!!!!!!!</span>
+        <span class="time">{{.FormattedTime}}</span>
+        <span class="sender">{{.Nickname}}:</span>
+        <span class="text">{{.Content}}</span>
       </div>
       <button class="delete-btn" title="Delete">delete</button>
     </div>
+    {{end}}
 
-    <!-- Message 2 -->
-    <div class="message">
-      <div class="message-line">
-        <span class="time">14:47 03/15</span>
-        <span class="sender">sam:</span>
-        <span class="text">frontend updates pushed to dev branch pushed to dev branch pushed to dev branch pushed to dev
-          branch pushed to dev branch pushed to dev branch pushed to dev branch pushed to dev branch pushed to dev
-          branch pushed to dev branch pushed to dev branch pushed to dev branch pushed to dev branch</span>
-      </div>
-      <button class="delete-btn" title="Delete">delete</button>
+    <div class="input-area">
+      <form action="/messages" method="post">
+        <input type="text" class="input-field" name="nickname" placeholder="nickname"><br>
+        <textarea type="text" class="input-field" name="content" placeholder="message" required></textarea><br>
+        <button class="send-btn" name="send-btn">send</button>
+      </form>
     </div>
 
-    <!-- Message 3 -->
-    <div class="message">
-      <div class="message-line">
-        <span class="time">15:05 03/15</span>
-        <span class="sender">morgan:</span>
-        <span class="text">nice to meet you</span>
-      </div>
-      <button class="delete-btn" title="Delete">delete</button>
-    </div>
-  </div>
-
-  <div class="input-area">
-    <input type="text" class="input-field" placeholder="nickname"><br>
-    <textarea type="text" class="input-field" placeholder="message"></textarea><br>
-    <button class="send-btn">send</button>
-  </div>
-
-  <footer>
-    backend coming soon
-  </footer>
+    <footer>
+      db coming soon
+    </footer>
 </body>
 
 </html>
