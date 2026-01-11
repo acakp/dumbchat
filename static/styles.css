@@ -25,7 +25,6 @@ h3 {
     border-radius: 8px;
 }
 
-/* Message styles */
 .message {
     position: relative;
 }
@@ -63,7 +62,6 @@ h3 {
     flex: 1;
 }
 
-/* Delete button (admin only) */
 .delete-btn {
     position: absolute;
     top: 1px;
@@ -80,7 +78,6 @@ h3 {
     color: #333;
 }
 
-/* input area */
 .input-area {
     margin-top: 3px;
 }
@@ -119,14 +116,12 @@ h3 {
     background: #333;
 }
 
-/* Footer */
 footer {
     padding-top: 10px;
     font-size: 13px;
     color: #888;
 }
 
-/* Responsive */
     @media (max-width: 600px) {
         body {
             padding: 15px;
@@ -147,7 +142,6 @@ footer {
         }
     }
     
-    /* For very small screens */
     @media (max-width: 400px) {
         body {
             padding: 10px;

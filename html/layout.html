@@ -21,7 +21,7 @@
   <div class="input-area">
     <form hx-post="/messages" hx-target="#chat" hx-swap="beforeend">
       <input type="text" class="input-field" name="nickname" placeholder="nickname"><br>
-      <textarea type="text" class="input-field" name="content" placeholder="message" required></textarea><br>
+      <textarea type="text" class="input-field" name="content" placeholder="message" rows=4 required></textarea><br>
       <button class="send-btn" name="send-btn">send</button>
     </form>
   </div>
@@ -30,7 +30,7 @@
     db coming soon
   </footer>
 
-  <script src="/static/scrollToBottom.js"></script>
+  <script src="/static/chat.js"></script>
 </body>
 
 </html>
