@@ -23,6 +23,7 @@ h3 {
     overflow-y: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
+    padding: 6px 10px;
 }
 
 .message {
