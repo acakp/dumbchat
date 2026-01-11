@@ -27,22 +27,28 @@ type Messages struct {
 	Msgs []Message
 }
 
+var (
+	messages    Messages
+	mu          sync.RWMutex
+	lastID      int
+	messageTmpl *template.Template
+)
+
 func chatHandler(w http.ResponseWriter, r *http.Request) {
 	mu.RLock()
 	defer mu.RUnlock()
 
-	tmpl, err := template.ParseFiles("html/layout.html")
+	tmpl, err := template.ParseFiles("html/layout.html", "html/message.html")
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
-	tmpl.Execute(w, messages)
+	err = tmpl.Execute(w, messages)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
-
-var (
-	messages Messages
-	mu       sync.RWMutex
-	lastID   int
-)
 
 func messagesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -77,7 +83,8 @@ func messagesHandler(w http.ResponseWriter, r *http.Request) {
 	// process the form data
 	processMessage(msg)
 
-	http.Redirect(w, r, "/chat", http.StatusSeeOther)
+	w.Header().Set("Content-Type", "text/html")
+	messageTmpl.ExecuteTemplate(w, "msg", msg)
 }
 
 func processMessage(msg Message) {
@@ -94,6 +101,13 @@ func main() {
 
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	r.Handle("/static/*", fs)
+
+	// parse the message template once
+	var err error
+	messageTmpl, err = template.ParseFiles("html/message.html")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r.Get("/chat", chatHandler)
 	r.Post("/messages", messagesHandler)

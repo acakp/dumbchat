@@ -1,0 +1,10 @@
+{{define "msg"}}
+<div class="message">
+  <div class="message-line">
+    <span class="time">{{.FormattedTime}}</span>
+    <span class="sender">{{.Nickname}}:</span>
+    <span class="text">{{.Content}}</span>
+  </div>
+  <button class="delete-btn">delete</button>
+</div>
+{{end}}

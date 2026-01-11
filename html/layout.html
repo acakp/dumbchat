@@ -6,34 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>chat</title>
   <link rel="stylesheet" href="static/styles.css" />
+  <script src="/static/htmx.min.js"></script>
 </head>
 
 <body>
   <h3>leave me a message or chat with someone</h3>
 
-  {{range .Msgs}}
-  <div class="chat-container">
-    <div class="message">
-      <div class="message-line">
-        <span class="time">{{.FormattedTime}}</span>
-        <span class="sender">{{.Nickname}}:</span>
-        <span class="text">{{.Content}}</span>
-      </div>
-      <button class="delete-btn" title="Delete">delete</button>
-    </div>
-    {{end}}
+  <div class="chat-container" id="chat">
+    {{ range .Msgs}}
+    {{template "msg" .}}
+    {{ end }}
+  </div>
 
-    <div class="input-area">
-      <form action="/messages" method="post">
-        <input type="text" class="input-field" name="nickname" placeholder="nickname"><br>
-        <textarea type="text" class="input-field" name="content" placeholder="message" required></textarea><br>
-        <button class="send-btn" name="send-btn">send</button>
-      </form>
-    </div>
+  <div class="input-area">
+    <form hx-post="/messages" hx-target="#chat" hx-swap="beforeend">
+      <input type="text" class="input-field" name="nickname" placeholder="nickname"><br>
+      <textarea type="text" class="input-field" name="content" placeholder="message" required></textarea><br>
+      <button class="send-btn" name="send-btn">send</button>
+    </form>
+  </div>
 
-    <footer>
-      db coming soon
-    </footer>
+  <footer>
+    db coming soon
+  </footer>
 </body>
 
 </html>
