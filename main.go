@@ -39,7 +39,7 @@ func chatHandler(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		messages, err := getMessages(db, 100)
+		messages, err := getMessages(db, 500)
 		if err != nil {
 			http.Error(w, "Failed to load messages", http.StatusInternalServerError)
 			return
