@@ -150,6 +150,11 @@ func createTables(db *sql.DB) error {
 			content TEXT NOT NULL,
 			created_at DATETIME NOT NULL
 		);
+
+		CREATE TABLE IF NOT EXISTS admin_sessions(
+			id TEXT PRIMARY KEY,
+			expires_at DATETIME NOT NULL
+		);
 	`
 	_, err := db.Exec(query)
 	return err
@@ -175,6 +180,21 @@ func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
 		messages.Msgs = append(messages.Msgs, m)
 	}
 	return messages, nil
+}
+
+func adminHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("html/login.html")
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
 }
 
 func main() {
@@ -204,6 +224,7 @@ func main() {
 	r.Get("/chat", chatHandler())
 	r.Post("/messages", messagesHandler(db))
 	r.Get("/poll", pollHandler(db))
+	r.Get("/admin/login", adminHandler())
 	fmt.Println("starting on :8888...")
 	http.ListenAndServe(":8888", r)
 }
