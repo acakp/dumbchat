@@ -1,4 +1,3 @@
-// scroll to bottom on new message and page load
 function scrollToBottom() {
   const chat = document.getElementById('chat');
   chat.scrollTop = chat.scrollHeight;
@@ -11,9 +10,8 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
   }
 });
 
-// send message w/ enter clear msg box after sending
-const textarea = document.querySelector('textarea[name="content"]');
-const form = document.querySelector('form[hx-post="/messages"]');
+textarea = document.querySelector('textarea[name="content"]');
+form = document.querySelector('form[hx-post="/messages"]');
 
 if (textarea && form) {
   textarea.addEventListener('keydown', function(e) {
@@ -37,3 +35,21 @@ if (textarea && form) {
 
   textarea.focus();
 }
+
+// track last msg id
+let lastMessageId = 0;
+
+document.body.addEventListener("htmx:afterSwap", function (e) {
+  if (e.target.id === "chat") {
+    const msgs = e.target.querySelectorAll(".message");
+    if (msgs.length > 0) {
+      lastMessageId = msgs[msgs.length - 1].dataset.id;
+    }
+  }
+});
+
+document.body.addEventListener("htmx:configRequest", function (e) {
+  if (e.detail.path === "/poll") {
+    e.detail.parameters.after_id = lastMessageId;
+  }
+});

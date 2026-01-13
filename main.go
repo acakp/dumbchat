@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 type Message struct {
-	ID        int
+	ID        int64
 	Nickname  string
 	Content   string
 	CreatedAt time.Time
@@ -32,20 +33,14 @@ var (
 	messageTmpl *template.Template
 )
 
-func chatHandler(db *sql.DB) http.HandlerFunc {
+func chatHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles("html/layout.html", "html/message.html")
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		messages, err := getMessages(db, 500)
-		if err != nil {
-			http.Error(w, "Failed to load messages", http.StatusInternalServerError)
-			return
-		}
-
-		err = tmpl.Execute(w, messages)
+		err = tmpl.Execute(w, nil)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -70,7 +65,6 @@ func messagesHandler(db *sql.DB) http.HandlerFunc {
 
 		// extract form values
 		msg := Message{
-			ID:        1,
 			Nickname:  r.FormValue("nickname"),
 			Content:   r.FormValue("content"),
 			CreatedAt: time.Now(),
@@ -85,7 +79,8 @@ func messagesHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		// process the form data
-		if err = processMessage(db, msg); err != nil {
+		msg.ID, err = processMessage(db, msg)
+		if err != nil {
 			http.Error(w, "Failed to save message", http.StatusInternalServerError)
 			return
 		}
@@ -95,18 +90,47 @@ func messagesHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func processMessage(db *sql.DB, msg Message) error {
+func pollHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("html/message.html")
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		lastIDStr := r.URL.Query().Get("after_id")
+		lastid := 0
+		if lastIDStr != "" {
+			lastid, _ = strconv.Atoi(lastIDStr)
+		}
+		messages, err := getMessagesAfter(db, lastid)
+		if err != nil {
+			http.Error(w, "Failed to load messages", http.StatusInternalServerError)
+			return
+		}
+
+		for _, msg := range messages.Msgs {
+			_ = tmpl.ExecuteTemplate(w, "msg", msg)
+		}
+	}
+}
+
+func processMessage(db *sql.DB, msg Message) (int64, error) {
 	query := `
 	INSERT INTO messages (nickname, content, created_at)
 	VALUES (?, ?, ?)
 	`
-	_, err := db.Exec(
+	res, err := db.Exec(
 		query,
 		msg.Nickname,
 		msg.Content,
 		msg.CreatedAt,
 	)
-	return err
+	if err != nil {
+		return -1, err
+	}
+	msgid, err := res.LastInsertId()
+	return msgid, err
 }
 
 func opendb() (*sql.DB, error) {
@@ -131,12 +155,12 @@ func createTables(db *sql.DB) error {
 	return err
 }
 
-func getMessages(db *sql.DB, limit int) (Messages, error) {
+func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
 	rows, err := db.Query(`
 		SELECT id, nickname, content, created_at
 		FROM messages
-		LIMIT ?
-	`, limit)
+		WHERE id > ?
+	`, lastID)
 	if err != nil {
 		return Messages{}, err
 	}
@@ -177,8 +201,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r.Get("/chat", chatHandler(db))
+	r.Get("/chat", chatHandler())
 	r.Post("/messages", messagesHandler(db))
+	r.Get("/poll", pollHandler(db))
 	fmt.Println("starting on :8888...")
 	http.ListenAndServe(":8888", r)
 }

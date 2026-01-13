@@ -6,16 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>chat</title>
   <link rel="stylesheet" href="static/styles.css" />
-  <script src="/static/htmx.min.js"></script>
+  <script src="/static/htmx.js"></script>
 </head>
 
 <body>
   <h3>leave me a message or chat with someone</h3>
 
-  <div class="chat-container" id="chat">
-    {{ range .Msgs}}
-    {{template "msg" .}}
-    {{ end }}
+  <div class="chat-container" id="chat" hx-get="/poll" hx-trigger="every 3s" hx-swap="beforeend">
   </div>
 
   <div class="input-area">
