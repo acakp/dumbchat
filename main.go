@@ -1,17 +1,22 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"text/template"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Message struct {
@@ -51,7 +56,6 @@ func chatHandler() http.HandlerFunc {
 func messagesHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			fmt.Println("Method not allowed")
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
@@ -182,7 +186,7 @@ func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
 	return messages, nil
 }
 
-func adminHandler() http.HandlerFunc {
+func adminGetHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles("html/login.html")
 		if err != nil {
@@ -197,7 +201,56 @@ func adminHandler() http.HandlerFunc {
 	}
 }
 
+func adminPostHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// parse form data
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing form", http.StatusBadRequest)
+			return
+		}
+		// extract form value
+		pwd := r.FormValue("password")
+
+		//compare hash and password
+		pwdHash := os.Getenv("ADMIN_PASSWORD_HASH")
+		if err := bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(pwd)); err == nil {
+			sessionID, _ := newSessionID()
+			// add session id to db
+			query := `
+				INSERT INTO admin_sessions (id, expires_at)
+				VALUES (?, ?)
+				`
+			_, err := db.Exec(
+				query,
+				sessionID,
+				time.Now().Add(10*time.Hour),
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("admin auth: success")
+			return
+		} else {
+			fmt.Println("admin auth: failure.", err)
+			http.Error(w, "Authentication Error", http.StatusUnauthorized)
+			return
+		}
+	}
+}
+
+func newSessionID() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	return hex.EncodeToString(b), err
+}
+
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -205,7 +258,6 @@ func main() {
 	r.Handle("/static/*", fs)
 
 	// parse the message template once
-	var err error
 	messageTmpl, err = template.ParseFiles("html/message.html")
 	if err != nil {
 		log.Fatal(err)
@@ -224,7 +276,8 @@ func main() {
 	r.Get("/chat", chatHandler())
 	r.Post("/messages", messagesHandler(db))
 	r.Get("/poll", pollHandler(db))
-	r.Get("/admin/login", adminHandler())
+	r.Get("/admin/login", adminGetHandler())
+	r.Post("/admin/login", adminPostHandler(db))
 	fmt.Println("starting on :8888...")
 	http.ListenAndServe(":8888", r)
 }
