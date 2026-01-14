@@ -261,6 +261,37 @@ func issueAdminSession(w http.ResponseWriter, sessionID string) {
 	http.SetCookie(w, cookie)
 }
 
+func requireAdmin(db *sql.DB, next http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("admin_session")
+		if err != nil || cookie.Valid() != nil {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		if err = isAdminSession(db, cookie); err != nil {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func isAdminSession(db *sql.DB, cookie *http.Cookie) error {
+	rows, err := db.Query(`
+			SELECT id, expires_at
+			FROM admin_sessions
+			WHERE id = ?
+			AND expires_at > CURRENT_TIMESTAMP
+		`, cookie.Value)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	return nil
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
