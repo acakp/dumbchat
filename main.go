@@ -229,6 +229,9 @@ func adminPostHandler(db *sql.DB) http.HandlerFunc {
 			if err != nil {
 				log.Fatal(err)
 			}
+			// set cookie
+			issueAdminSession(w, sessionID)
+
 			fmt.Println("admin auth: success")
 			return
 		} else {
@@ -243,6 +246,19 @@ func newSessionID() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	return hex.EncodeToString(b), err
+}
+
+func issueAdminSession(w http.ResponseWriter, sessionID string) {
+	cookie := &http.Cookie{
+		Name:     "admin_session",
+		Value:    sessionID,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false, // true is HTTPS only
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   36000, // 10h
+	}
+	http.SetCookie(w, cookie)
 }
 
 func main() {
