@@ -292,6 +292,25 @@ func isAdminSession(db *sql.DB, cookie *http.Cookie) error {
 	return nil
 }
 
+func deleteMessageHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "messageID")
+		messageID, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+		}
+
+		query := "DELETE FROM messages WHERE id = ?"
+		res, err := db.Exec(query, messageID)
+		rows, _ := res.RowsAffected()
+		if rows == 0 {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -322,6 +341,7 @@ func main() {
 
 	r.Get("/chat", chatHandler())
 	r.Post("/messages", messagesHandler(db))
+	r.Delete("/messages/{messageID}", deleteMessageHandler(db))
 	r.Get("/poll", pollHandler(db))
 	r.Get("/admin/login", adminGetHandler())
 	r.Post("/admin/login", adminPostHandler(db))
