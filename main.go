@@ -113,8 +113,24 @@ func pollHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// check for admin
+		c, err := r.Cookie("admin_session")
+		isAdmin := false
+		if err == nil {
+			if erra := isAdminSession(db, c); erra == nil {
+				isAdmin = true
+			}
+		}
+		// show msgs
 		for _, msg := range messages.Msgs {
-			_ = tmpl.ExecuteTemplate(w, "msg", msg)
+			nice := struct {
+				Msg     Message
+				IsAdmin bool
+			}{
+				msg,
+				isAdmin,
+			}
+			_ = tmpl.ExecuteTemplate(w, "msg", nice)
 		}
 	}
 }
@@ -341,7 +357,7 @@ func main() {
 
 	r.Get("/chat", chatHandler())
 	r.Post("/messages", messagesHandler(db))
-	r.Delete("/messages/{messageID}", deleteMessageHandler(db))
+	r.Delete("/messages/{messageID}", requireAdmin(db, deleteMessageHandler(db)))
 	r.Get("/poll", pollHandler(db))
 	r.Get("/admin/login", adminGetHandler())
 	r.Post("/admin/login", adminPostHandler(db))

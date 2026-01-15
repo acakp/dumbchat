@@ -1,13 +1,15 @@
 {{define "msg"}}
-<div class="message" data-id="{{.ID}}">
+<div class="message" data-id="{{.Msg.ID}}">
   <div class="message-line">
-    <span class="time">{{.FormattedTime}}</span>
-    <span class="sender">{{.Nickname}}:</span>
-    <span class="text">{{.Content}}</span>
+    <span class="time">{{.Msg.FormattedTime}}</span>
+    <span class="sender">{{.Msg.Nickname}}:</span>
+    <span class="text">{{.Msg.Content}}</span>
   </div>
-  <button class="delete-btn" hx-delete="/messages/{{.ID}}" hx-swap="delete" hx-target="closest .message"
+  {{ if .IsAdmin }}
+  <button class="delete-btn" hx-delete="/messages/{{.Msg.ID}}" hx-swap="delete" hx-target="closest .message"
     hx-confirm="delete this message?">
     delete
   </button>
+  {{ end }}
 </div>
 {{end}}
