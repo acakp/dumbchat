@@ -102,12 +102,19 @@ func pollHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		lastIDStr := r.URL.Query().Get("after_id")
-		lastid := 0
-		if lastIDStr != "" {
-			lastid, _ = strconv.Atoi(lastIDStr)
-		}
-		messages, err := getMessagesAfter(db, lastid)
+		// lastIDStr := r.URL.Query().Get("after_id")
+		// lastid := 0
+		// if lastIDStr != "" {
+		// 	lastid, _ = strconv.Atoi(lastIDStr)
+		// }
+		// messages, err := getMessagesAfter(db, lastid)
+		// if err != nil {
+		// 	http.Error(w, "Failed to load messages", http.StatusInternalServerError)
+		// 	return
+		// }
+
+		// load all messages every time to make deleted messages disappear w/o refreshing the page
+		messages, err := getMessages(db)
 		if err != nil {
 			http.Error(w, "Failed to load messages", http.StatusInternalServerError)
 			return
@@ -180,12 +187,32 @@ func createTables(db *sql.DB) error {
 	return err
 }
 
-func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
+// func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
+// 	rows, err := db.Query(`
+// 		SELECT id, nickname, content, created_at
+// 		FROM messages
+// 		WHERE id > ?
+// 	`, lastID)
+// 	if err != nil {
+// 		return Messages{}, err
+// 	}
+// 	defer rows.Close()
+
+//		var messages Messages
+//		for rows.Next() {
+//			var m Message
+//			if err := rows.Scan(&m.ID, &m.Nickname, &m.Content, &m.CreatedAt); err != nil {
+//				return Messages{}, err
+//			}
+//			messages.Msgs = append(messages.Msgs, m)
+//		}
+//		return messages, nil
+//	}
+func getMessages(db *sql.DB) (Messages, error) {
 	rows, err := db.Query(`
 		SELECT id, nickname, content, created_at
 		FROM messages
-		WHERE id > ?
-	`, lastID)
+	`)
 	if err != nil {
 		return Messages{}, err
 	}
