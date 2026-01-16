@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -294,6 +295,10 @@ func isAdminSession(db *sql.DB, cookie *http.Cookie) error {
 		return err
 	}
 	defer rows.Close()
+
+	if !rows.Next() {
+		return errors.New("no such session")
+	}
 
 	return nil
 }
