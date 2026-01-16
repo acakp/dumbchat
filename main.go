@@ -30,10 +30,6 @@ func (m Message) FormattedTime() string {
 	return m.CreatedAt.Format("15:04 02.01.06")
 }
 
-type Messages struct {
-	Msgs []Message
-}
-
 var (
 	messageTmpl *template.Template
 )
@@ -102,18 +98,6 @@ func pollHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// lastIDStr := r.URL.Query().Get("after_id")
-		// lastid := 0
-		// if lastIDStr != "" {
-		// 	lastid, _ = strconv.Atoi(lastIDStr)
-		// }
-		// messages, err := getMessagesAfter(db, lastid)
-		// if err != nil {
-		// 	http.Error(w, "Failed to load messages", http.StatusInternalServerError)
-		// 	return
-		// }
-
-		// load all messages every time to make deleted messages disappear w/o refreshing the page
 		messages, err := getMessages(db)
 		if err != nil {
 			http.Error(w, "Failed to load messages", http.StatusInternalServerError)
@@ -129,7 +113,7 @@ func pollHandler(db *sql.DB) http.HandlerFunc {
 			}
 		}
 		// show msgs
-		for _, msg := range messages.Msgs {
+		for _, msg := range messages {
 			nice := struct {
 				Msg     Message
 				IsAdmin bool
@@ -187,44 +171,23 @@ func createTables(db *sql.DB) error {
 	return err
 }
 
-// func getMessagesAfter(db *sql.DB, lastID int) (Messages, error) {
-// 	rows, err := db.Query(`
-// 		SELECT id, nickname, content, created_at
-// 		FROM messages
-// 		WHERE id > ?
-// 	`, lastID)
-// 	if err != nil {
-// 		return Messages{}, err
-// 	}
-// 	defer rows.Close()
-
-//		var messages Messages
-//		for rows.Next() {
-//			var m Message
-//			if err := rows.Scan(&m.ID, &m.Nickname, &m.Content, &m.CreatedAt); err != nil {
-//				return Messages{}, err
-//			}
-//			messages.Msgs = append(messages.Msgs, m)
-//		}
-//		return messages, nil
-//	}
-func getMessages(db *sql.DB) (Messages, error) {
+func getMessages(db *sql.DB) ([]Message, error) {
 	rows, err := db.Query(`
 		SELECT id, nickname, content, created_at
 		FROM messages
 	`)
 	if err != nil {
-		return Messages{}, err
+		return []Message{}, err
 	}
 	defer rows.Close()
 
-	var messages Messages
+	var messages []Message
 	for rows.Next() {
 		var m Message
 		if err := rows.Scan(&m.ID, &m.Nickname, &m.Content, &m.CreatedAt); err != nil {
-			return Messages{}, err
+			return []Message{}, err
 		}
-		messages.Msgs = append(messages.Msgs, m)
+		messages = append(messages, m)
 	}
 	return messages, nil
 }
