@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"database/sql"
+	"net/http"
 	"text/template"
 )
 
@@ -32,4 +34,22 @@ func ParseTemplates() parsedTemplates {
 	ret.LoginTmpl = loginTmpl
 
 	return ret
+}
+
+func showAllMessages(w http.ResponseWriter, db *sql.DB, msgTmpl *template.Template, isAdmin bool) error {
+	msgs, err := getMessages(db)
+	if err != nil {
+		return err
+	}
+	for _, msg := range msgs {
+		nice := struct {
+			Msg     Message
+			IsAdmin bool
+		}{
+			msg,
+			isAdmin,
+		}
+		_ = msgTmpl.ExecuteTemplate(w, "msg", nice)
+	}
+	return nil
 }

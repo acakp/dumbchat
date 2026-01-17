@@ -4,6 +4,12 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
+	"errors"
+	"os"
+	"time"
+
+	// au "github.com/acakp/dumbchat/internal/auth"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func insertMessage(db *sql.DB, msg Message) (int64, error) {
@@ -22,6 +28,20 @@ func insertMessage(db *sql.DB, msg Message) (int64, error) {
 	}
 	msgid, err := res.LastInsertId()
 	return msgid, err
+}
+
+var ErrMessageNotFound = errors.New("Message with given ID not found")
+
+func deleteMessage(db *sql.DB, messageID int) error {
+	query := "DELETE FROM messages WHERE id = ?"
+	res, err := db.Exec(query, messageID)
+	if err != nil {
+		return err
+	}
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return ErrMessageNotFound
+	}
+	return nil
 }
 
 func OpenDB() (*sql.DB, error) {
@@ -76,4 +96,27 @@ func NewSessionID() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	return hex.EncodeToString(b), err
+}
+
+func checkAdminPassword(db *sql.DB, pwd string) (string, error) {
+	pwdHash := os.Getenv("ADMIN_PASSWORD_HASH")
+	err := bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(pwd))
+	if err != nil {
+		return "", err
+	}
+	sessionID, _ := NewSessionID()
+	// add session id to db
+	query := `
+		INSERT INTO admin_sessions (id, expires_at)
+		VALUES (?, ?)
+		`
+	_, err = db.Exec(
+		query,
+		sessionID,
+		time.Now().Add(10*time.Hour),
+	)
+	if err != nil {
+		return "", err
+	}
+	return sessionID, nil
 }

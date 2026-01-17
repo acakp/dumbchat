@@ -1,1 +1,44 @@
 package chat
+
+import (
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+)
+
+func parseMessage(r *http.Request) (Message, error) {
+	err := r.ParseForm()
+	if err != nil {
+		return Message{}, err // error parsing form
+	}
+
+	msg := extractMessageFormValues(r)
+	if msg.Content == "" {
+		return Message{}, err // content field is required
+	}
+	return msg, nil
+}
+
+func extractMessageFormValues(r *http.Request) Message {
+	msg := Message{
+		Nickname:  r.FormValue("nickname"),
+		Content:   r.FormValue("content"),
+		CreatedAt: time.Now(),
+	}
+	if msg.Nickname == "" {
+		msg.Nickname = "anonymous"
+	}
+	return msg
+}
+
+func extractMessageID(r *http.Request) (int, error) {
+	id := chi.URLParam(r, "messageID")
+	messageID, err := strconv.Atoi(id)
+	if err != nil {
+		// http.Error(w, "Bad request", http.StatusBadRequest)
+		return -1, err
+	}
+	return messageID, err
+}
