@@ -3,10 +3,22 @@ package chat
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 )
+
+func NewURLs(base string) URLs {
+	base = strings.TrimRight(base, "/")
+
+	return URLs{
+		Base:   base,
+		Post:   base + "/messages",
+		Poll:   base + "/poll",
+		Delete: base + "/messages/{messageID}",
+	}
+}
 
 func parseMessage(r *http.Request) (Message, error) {
 	err := r.ParseForm()

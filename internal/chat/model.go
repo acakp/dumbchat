@@ -2,6 +2,13 @@ package chat
 
 import "time"
 
+type URLs struct {
+	Base   string
+	Post   string
+	Poll   string
+	Delete string
+}
+
 type Message struct {
 	ID        int64
 	Nickname  string

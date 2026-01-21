@@ -39,10 +39,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r.Get("/chat", ch.ChatHandler(ts.ChatTmpl))
-	r.Post("/messages", ch.MessagesHandler(db, ts.MessageTmpl))
-	r.Delete("/messages/{messageID}", ch.RequireAdmin(db, ch.DeleteMessageHandler(db)))
-	r.Get("/poll", ch.PollHandler(db, ts.MessageTmpl))
+	chatURLs := ch.NewURLs("/chat")
+
+	r.Get(chatURLs.Base, ch.ChatHandler(ts.ChatTmpl))
+	r.Post(chatURLs.Poll, ch.MessagesHandler(db, ts.MessageTmpl))
+	r.Delete(chatURLs.Delete, ch.RequireAdmin(db, ch.DeleteMessageHandler(db)))
+	r.Get(chatURLs.Poll, ch.PollHandler(db, ts.MessageTmpl))
 	r.Get("/admin/login", ch.AdminGetHandler(ts.LoginTmpl))
 	r.Post("/admin/login", ch.AdminPostHandler(db))
 	fmt.Println("starting on :8888...")
