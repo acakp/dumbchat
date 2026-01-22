@@ -20,10 +20,11 @@ type parsedTemplates struct {
 }
 
 type URLs struct {
-	Base   string
-	Post   string
-	Poll   string
-	Delete string
+	Base        string
+	Post        string
+	Poll        string
+	DeleteRoute string
+	Delete      func(id int) string
 }
 
 type MessageView struct {

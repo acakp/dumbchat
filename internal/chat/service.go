@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,10 +14,13 @@ func NewURLs(base string) URLs {
 	base = strings.TrimRight(base, "/")
 
 	return URLs{
-		Base:   base,
-		Post:   base + "/messages",
-		Poll:   base + "/poll",
-		Delete: base + "/messages/{messageID}",
+		Base:        base,
+		Post:        base + "/messages",
+		Poll:        base + "/poll",
+		DeleteRoute: base + "/messages/{messageID}",
+		Delete: func(id int) string {
+			return fmt.Sprintf("%s/messages/%d", base, id)
+		},
 	}
 }
 

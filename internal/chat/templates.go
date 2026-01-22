@@ -38,7 +38,6 @@ func showAllMessages(w http.ResponseWriter, db *sql.DB, msgTmpl *template.Templa
 	for _, msg := range msgs {
 		msv.Msg = msg
 		msv.IsAdmin = true
-		fmt.Println(msv.URLs.Delete)
 		err = msgTmpl.ExecuteTemplate(w, "msg", msv)
 		if err != nil {
 			fmt.Println(err)
