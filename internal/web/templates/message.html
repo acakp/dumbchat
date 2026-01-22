@@ -6,7 +6,7 @@
     <span class="text">{{.Msg.Content}}</span>
   </div>
   {{ if .IsAdmin }}
-  <button class="delete-btn" hx-delete="{{ call .URLs.Delete .Msg.ID }}" hx-swap="delete" hx-target="closest .message"
+  <button class="delete-btn" hx-delete="{{.URLs.Delete}}" hx-swap="delete" hx-target="closest .message"
     hx-confirm="delete this message?">
     delete
   </button>

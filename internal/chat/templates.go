@@ -2,16 +2,10 @@ package chat
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"text/template"
 )
-
-type parsedTemplates struct {
-	Err         error
-	ChatTmpl    *template.Template
-	MessageTmpl *template.Template
-	LoginTmpl   *template.Template
-}
 
 func ParseTemplates() parsedTemplates {
 	var ret parsedTemplates
@@ -36,20 +30,19 @@ func ParseTemplates() parsedTemplates {
 	return ret
 }
 
-func showAllMessages(w http.ResponseWriter, db *sql.DB, msgTmpl *template.Template, isAdmin bool) error {
+func showAllMessages(w http.ResponseWriter, db *sql.DB, msgTmpl *template.Template, msv MessageView) error {
 	msgs, err := getMessages(db)
 	if err != nil {
 		return err
 	}
 	for _, msg := range msgs {
-		nice := struct {
-			Msg     Message
-			IsAdmin bool
-		}{
-			msg,
-			isAdmin,
+		msv.Msg = msg
+		msv.IsAdmin = true
+		fmt.Println(msv.URLs.Delete)
+		err = msgTmpl.ExecuteTemplate(w, "msg", msv)
+		if err != nil {
+			fmt.Println(err)
 		}
-		_ = msgTmpl.ExecuteTemplate(w, "msg", nice)
 	}
 	return nil
 }

@@ -11,7 +11,7 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
 });
 
 textarea = document.querySelector('textarea[name="content"]');
-form = document.querySelector('form[hx-post="/messages"]');
+form = document.querySelector('div.input-area form');
 
 if (textarea && form) {
   textarea.addEventListener('keydown', function(e) {
@@ -48,8 +48,8 @@ document.body.addEventListener("htmx:afterSwap", function (e) {
   }
 });
 
-document.body.addEventListener("htmx:configRequest", function (e) {
-  if (e.detail.path === "/poll") {
-    e.detail.parameters.after_id = lastMessageId;
-  }
-});
+// document.body.addEventListener("htmx:configRequest", function (e) {
+//   if (e.detail.path === "/poll") {
+//     e.detail.parameters.after_id = lastMessageId;
+//   }
+// });

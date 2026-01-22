@@ -1,12 +1,35 @@
 package chat
 
-import "time"
+import (
+	"database/sql"
+	"text/template"
+	"time"
+)
+
+type Handler struct {
+	DB    *sql.DB
+	URLs  URLs
+	Tmpls *parsedTemplates
+}
+
+type parsedTemplates struct {
+	Err         error
+	ChatTmpl    *template.Template
+	MessageTmpl *template.Template
+	LoginTmpl   *template.Template
+}
 
 type URLs struct {
 	Base   string
 	Post   string
 	Poll   string
 	Delete string
+}
+
+type MessageView struct {
+	URLs    URLs
+	Msg     Message
+	IsAdmin bool
 }
 
 type Message struct {
