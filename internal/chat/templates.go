@@ -9,7 +9,7 @@ import (
 
 func ParseTemplates() parsedTemplates {
 	var ret parsedTemplates
-	chatTmpl, err := template.ParseFiles("internal/web/templates/layout.html")
+	chatTmpl, err := template.ParseFiles("internal/web/templates/chat.html")
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}

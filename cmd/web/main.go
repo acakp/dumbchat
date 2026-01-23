@@ -48,12 +48,6 @@ func main() {
 
 	ch.RegisterRoutes(r, handler)
 
-	// r.Get(chatURLs.Base, ch.ChatHandler(ts.ChatTmpl))
-	// r.Post(chatURLs.Poll, ch.MessagesHandler(db, ts.MessageTmpl))
-	// r.Delete(chatURLs.Delete, ch.RequireAdmin(db, ch.DeleteMessageHandler(db)))
-	// r.Get(chatURLs.Poll, ch.PollHandler(db, ts.MessageTmpl))
-	// r.Get("/admin/login", ch.AdminGetHandler(ts.LoginTmpl))
-	// r.Post("/admin/login", ch.AdminPostHandler(db))
 	fmt.Println("starting on :8888...")
 	http.ListenAndServe(":8888", r)
 }
