@@ -13,15 +13,16 @@ import (
 )
 
 func RegisterRoutes(r chi.Router, h Handler) {
-	r.Get(h.URLs.Base, h.Chat)
-	r.Post(h.URLs.Post, h.Messages)
-	r.Delete(h.URLs.DeleteRoute, h.DeleteMessage)
-	r.Get(h.URLs.Poll, h.Poll)
-	r.Get("/admin/login", h.AdminGet)
-	r.Post("/admin/login", h.AdminPost)
+	r.Get(h.URLs.Base, h.chat)
+	r.Post(h.URLs.Post, h.messages)
+	// r.Delete(h.URLs.DeleteRoute, h.deleteMessage)
+	r.Delete(h.URLs.DeleteRoute, requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
+	r.Get(h.URLs.Poll, h.poll)
+	r.Get("/admin/login", h.adminGet)
+	r.Post("/admin/login", h.adminPost)
 }
 
-func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
 	err := h.Tmpls.ChatTmpl.Execute(w, h.URLs)
 	if err != nil {
 		fmt.Println(err)
@@ -30,7 +31,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -59,7 +60,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 	h.Tmpls.MessageTmpl.ExecuteTemplate(w, "msg", msv)
 }
 
-func (h *Handler) Poll(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) poll(w http.ResponseWriter, r *http.Request) {
 	// check for admin
 	c, err := r.Cookie("admin_session")
 	isAdmin := false
@@ -80,7 +81,7 @@ func (h *Handler) Poll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) AdminGet(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) adminGet(w http.ResponseWriter, r *http.Request) {
 	err := h.Tmpls.LoginTmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -88,7 +89,7 @@ func (h *Handler) AdminGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) AdminPost(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) adminPost(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
@@ -112,10 +113,11 @@ func (h *Handler) AdminPost(w http.ResponseWriter, r *http.Request) {
 	au.IssueAdminSession(w, sessionID)
 }
 
-func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) deleteMessage(w http.ResponseWriter, r *http.Request) {
 	messageID, err := extractMessageID(r)
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
 	}
 	err = deleteMessage(h.DB, messageID)
 	if err != nil {
@@ -125,11 +127,12 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
 
-func RequireAdmin(db *sql.DB, next http.Handler) http.HandlerFunc {
+func requireAdmin(db *sql.DB, next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("admin_session")
 		if err != nil || cookie.Valid() != nil {

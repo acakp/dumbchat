@@ -92,7 +92,7 @@ func getMessages(db *sql.DB) ([]Message, error) {
 	return messages, nil
 }
 
-func NewSessionID() (string, error) {
+func newSessionID() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	return hex.EncodeToString(b), err
@@ -104,7 +104,7 @@ func checkAdminPassword(db *sql.DB, pwd string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	sessionID, _ := NewSessionID()
+	sessionID, _ := newSessionID()
 	// add session id to db
 	query := `
 		INSERT INTO admin_sessions (id, expires_at)
