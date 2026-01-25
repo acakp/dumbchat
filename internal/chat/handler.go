@@ -15,7 +15,6 @@ import (
 func RegisterRoutes(r chi.Router, h Handler) {
 	r.Get(h.URLs.Base, h.chat)
 	r.Post(h.URLs.Post, h.messages)
-	// r.Delete(h.URLs.DeleteRoute, h.deleteMessage)
 	r.Delete(h.URLs.DeleteRoute, requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
 	r.Get(h.URLs.Poll, h.poll)
 	r.Get("/admin/login", h.adminGet)

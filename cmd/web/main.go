@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/go-chi/chi/v5"
@@ -31,7 +32,7 @@ func main() {
 
 	db, errdb := ch.OpenDB()
 	if errdb != nil {
-		log.Fatal(err)
+		log.Fatal(errdb)
 	}
 	defer db.Close()
 
@@ -39,7 +40,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	chatURLs := ch.NewURLs("/chat")
+	chatURLs := ch.NewURLs(os.Getenv("CHAT_BASE_PATH"))
 	handler := ch.Handler{
 		DB:    db,
 		URLs:  chatURLs,
