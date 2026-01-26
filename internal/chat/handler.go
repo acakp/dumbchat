@@ -12,11 +12,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func RegisterRoutes(r chi.Router, h Handler) {
-	r.Get(h.URLs.Base, h.chat)
-	r.Post(h.URLs.Post, h.messages)
-	r.Delete(h.URLs.DeleteRoute, requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
-	r.Get(h.URLs.Poll, h.poll)
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	r.Get("/", h.chat)
+	r.Post("/messages", h.messages)
+	r.Get("/poll", h.poll)
+	r.Delete("/messages/{messageID}", requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
 	r.Get("/admin/login", h.adminGet)
 	r.Post("/admin/login", h.adminPost)
 }

@@ -1,53 +1,54 @@
 package chat
 
 import (
-	"fmt"
+	"database/sql"
 	"html/template"
+	"io"
 	"os"
 
 	"github.com/acakp/dumbchat/internal/chat"
-	"github.com/acakp/dumbchat/internal/web"
 	"github.com/go-chi/chi/v5"
 )
 
-func AttachTemplates(t *template.Template) error {
-	chatTmpl, err := template.ParseFS(web.TemplateFS, "templates/*")
-	if err != nil {
-		return fmt.Errorf("error parsing web.TemplateFS: %w", err)
-	}
+type App struct {
+	handler *chat.Handler
+	// other unexported fields
+}
 
-	for _, tmpl := range chatTmpl.Templates() {
-		if tmpl.Name() == "" {
-			continue
-		}
-		_, err := t.AddParseTree(tmpl.Name(), tmpl.Tree)
-		if err != nil {
-			return fmt.Errorf("error parsing tmpls tree: %w", err)
-		}
+type Config struct {
+	DB       *sql.DB
+	BasePath string
+}
+
+func (a *App) AttachTemplates(t *template.Template) error {
+	tmpls := chat.ParseTemplates(t)
+	if tmpls.Err != nil {
+		return tmpls.Err
 	}
+	a.handler.Tmpls = &tmpls
 
 	return nil
 }
 
-func ChatInit(r chi.Router) error {
-	db, errdb := chat.OpenDB()
-	if errdb != nil {
-		return errdb
-	}
-	defer db.Close()
+func (a *App) Execute(wr io.Writer) {
+	a.handler.Tmpls.ChatTmpl.Execute(wr, a.handler.URLs)
+}
 
-	if err := chat.CreateTables(db); err != nil {
-		return err
-	}
+func New(cfg Config) (*App, error) {
+	urls := chat.NewURLs(os.Getenv("CHAT_BASE_PATH"))
 
-	chatURLs := chat.NewURLs(os.Getenv("CHAT_BASE_PATH"))
-	handler := chat.Handler{
-		DB:   db,
-		URLs: chatURLs,
-		// Tmpls: &ts,
+	h := &chat.Handler{
+		DB:   cfg.DB,
+		URLs: urls,
 	}
 
-	chat.RegisterRoutes(r, handler)
+	return &App{handler: h}, nil
+}
 
-	return nil
+func (a *App) RegisterRoutes(r chi.Router) {
+	a.handler.RegisterRoutes(r)
+}
+
+func (a *App) CreateTables(db *sql.DB) {
+	chat.CreateTables(db)
 }

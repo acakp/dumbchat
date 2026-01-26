@@ -3,25 +3,40 @@ package chat
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
+
+	"github.com/acakp/dumbchat/internal/web"
 )
 
-func ParseTemplates() parsedTemplates {
+func ParseTemplatesCmd() parsedTemplates {
+	layoutTmpl, err := template.ParseFiles("internal/web/templates/layout.html")
+	if err != nil {
+		return parsedTemplates{err, nil, nil, nil}
+	}
+	return ParseTemplates(layoutTmpl)
+}
+
+func ParseTemplates(t *template.Template) parsedTemplates {
 	var ret parsedTemplates
-	chatTmpl, err := template.ParseFiles("internal/web/templates/layout.html", "internal/web/templates/chat.html")
+	// chatTmpl := template.New("chat")
+	// chatTmpl = t
+	// _, err := chatTmpl.Parse(web.ChatHTML)
+	_, err := t.Parse(web.ChatHTML)
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}
-	ret.ChatTmpl = chatTmpl
+	ret.ChatTmpl = t
 
-	msgTmpl, err := template.ParseFiles("internal/web/templates/message.html")
+	messageTmpl := template.New("msg")
+	messageTmpl, err = messageTmpl.Parse(web.MessageHTML)
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}
-	ret.MessageTmpl = msgTmpl
+	ret.MessageTmpl = messageTmpl
 
-	loginTmpl, err := template.ParseFiles("internal/web/templates/login.html")
+	loginTmpl := template.New("login")
+	loginTmpl, err = loginTmpl.Parse(web.LoginHTML)
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}

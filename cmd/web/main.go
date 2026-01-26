@@ -25,7 +25,7 @@ func main() {
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	r.Handle("/static/*", fs)
 
-	ts := ch.ParseTemplates()
+	ts := ch.ParseTemplatesCmd()
 	if ts.Err != nil {
 		log.Fatal(ts.Err)
 	}
@@ -47,7 +47,9 @@ func main() {
 		Tmpls: &ts,
 	}
 
-	ch.RegisterRoutes(r, handler)
+	r.Route("/chat", func(r chi.Router) {
+		handler.RegisterRoutes(r)
+	})
 
 	fmt.Println("starting on :8888...")
 	http.ListenAndServe(":8888", r)

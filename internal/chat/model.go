@@ -2,7 +2,7 @@ package chat
 
 import (
 	"database/sql"
-	"text/template"
+	"html/template"
 	"time"
 )
 
