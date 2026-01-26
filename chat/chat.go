@@ -1,20 +1,19 @@
 package chat
 
 import (
-	"embed"
+	"fmt"
 	"html/template"
 	"os"
 
 	"github.com/acakp/dumbchat/internal/chat"
+	"github.com/acakp/dumbchat/internal/web"
 	"github.com/go-chi/chi/v5"
 )
 
-var templatesFS embed.FS
-
 func AttachTemplates(t *template.Template) error {
-	chatTmpl, err := template.ParseFS(templatesFS, "templates/*.html")
+	chatTmpl, err := template.ParseFS(web.TemplateFS, "templates/*")
 	if err != nil {
-		return err
+		return fmt.Errorf("error parsing web.TemplateFS: %w", err)
 	}
 
 	for _, tmpl := range chatTmpl.Templates() {
@@ -23,7 +22,7 @@ func AttachTemplates(t *template.Template) error {
 		}
 		_, err := t.AddParseTree(tmpl.Name(), tmpl.Tree)
 		if err != nil {
-			return err
+			return fmt.Errorf("error parsing tmpls tree: %w", err)
 		}
 	}
 
