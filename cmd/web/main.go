@@ -40,14 +40,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	chatURLs := ch.NewURLs(os.Getenv("CHAT_BASE_PATH"))
+	basePath := os.Getenv("CHAT_BASE_PATH")
+	chatURLs := ch.NewURLs(basePath)
 	handler := ch.Handler{
 		DB:    db,
 		URLs:  chatURLs,
 		Tmpls: &ts,
 	}
 
-	r.Route("/chat", func(r chi.Router) {
+	r.Route(basePath, func(r chi.Router) {
 		handler.RegisterRoutes(r)
 	})
 
