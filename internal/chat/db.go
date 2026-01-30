@@ -45,7 +45,7 @@ func deleteMessage(db *sql.DB, messageID int) error {
 }
 
 func OpenDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./chat.db")
+	db, err := sql.Open("sqlite", "./chat.db")
 	if err != nil {
 		return nil, err
 	}
