@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	au "github.com/acakp/dumbchat/internal/auth"
+	"github.com/acakp/dumbchat/internal/auth"
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -43,9 +43,18 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check nickname for banned words (e.g. "admin")
-	if err = validateNickname(msg); err != nil {
-		http.Error(w, "Nickname contains prohibited words", http.StatusBadRequest)
-		return
+	c, err := r.Cookie("admin_session")
+	isAdmin := false
+	if err == nil {
+		if err = auth.IsAdminSession(h.DB, c); err == nil {
+			isAdmin = true
+		}
+	}
+	if isAdmin == false {
+		if err = validateNickname(msg); err != nil {
+			http.Error(w, "Nickname contains prohibited words", http.StatusBadRequest)
+			return
+		}
 	}
 
 	// process the form data
@@ -70,7 +79,7 @@ func (h *Handler) poll(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("admin_session")
 	isAdmin := false
 	if err == nil {
-		if erra := au.IsAdminSession(h.DB, c); erra == nil {
+		if erra := auth.IsAdminSession(h.DB, c); erra == nil {
 			isAdmin = true
 		}
 	}
@@ -115,7 +124,7 @@ func (h *Handler) adminPost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	au.IssueAdminSession(w, sessionID)
+	auth.IssueAdminSession(w, sessionID)
 }
 
 func (h *Handler) deleteMessage(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +153,7 @@ func requireAdmin(db *sql.DB, next http.Handler) http.HandlerFunc {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		if err = au.IsAdminSession(db, cookie); err != nil {
+		if err = auth.IsAdminSession(db, cookie); err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
