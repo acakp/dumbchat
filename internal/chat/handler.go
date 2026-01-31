@@ -42,6 +42,12 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check nickname for banned words (e.g. "admin")
+	if err = validateNickname(msg); err != nil {
+		http.Error(w, "Nickname contains prohibited words", http.StatusBadRequest)
+		return
+	}
+
 	// process the form data
 	msg.ID, err = insertMessage(h.DB, msg)
 	if err != nil {

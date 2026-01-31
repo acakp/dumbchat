@@ -3,6 +3,7 @@ package chat
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -57,4 +58,15 @@ func extractMessageID(r *http.Request) (int, error) {
 		return -1, err
 	}
 	return messageID, err
+}
+
+func validateNickname(msg Message) error {
+	bannedNicknames := strings.SplitSeq(os.Getenv("BANNED_NICKNAMES"), ",")
+	for banned := range bannedNicknames {
+		if strings.Contains(msg.Nickname, banned) {
+			return fmt.Errorf("prohibited nickname")
+		}
+	}
+
+	return nil
 }
