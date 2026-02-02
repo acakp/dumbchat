@@ -8,6 +8,7 @@ import (
 
 type Handler struct {
 	DB    *sql.DB
+	Hub   *Hub
 	URLs  URLs
 	Tmpls *parsedTemplates
 }

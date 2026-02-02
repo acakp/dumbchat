@@ -9,6 +9,7 @@ import (
 
 	"github.com/acakp/dumbchat/internal/auth"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,6 +20,25 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Delete("/messages/{messageID}", requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
 	r.Get("/admin/login", h.adminGet)
 	r.Post("/admin/login", h.adminPost)
+	r.Get("/ws", handleWS(h.Hub))
+}
+
+func handleWS(hub *Hub) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		upgrader := websocket.Upgrader{}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			http.Error(w, "Error upgrading to websockets", http.StatusUpgradeRequired)
+		}
+
+		client := &Client{
+			conn: conn,
+			send: make(chan Event),
+		}
+
+		go client.writePump()
+		go client.readPump(hub)
+	}
 }
 
 func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {

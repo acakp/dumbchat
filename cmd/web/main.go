@@ -40,10 +40,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	hub := ch.Hub{}
+	go hub.Run()
+
 	basePath := os.Getenv("CHAT_BASE_PATH")
 	chatURLs := ch.NewURLs(basePath)
 	handler := ch.Handler{
 		DB:    db,
+		Hub:   &hub,
 		URLs:  chatURLs,
 		Tmpls: &ts,
 	}

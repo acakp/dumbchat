@@ -43,3 +43,17 @@ func (c *Client) writePump() {
 		c.conn.WriteJSON(msg)
 	}
 }
+
+func (c *Client) readPump(h *Hub) {
+	defer func() {
+		h.unregister <- c
+		c.conn.Close()
+	}()
+
+	for {
+		_, _, err := c.conn.ReadMessage()
+		if err != nil {
+			break
+		}
+	}
+}
