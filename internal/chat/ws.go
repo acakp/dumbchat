@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -8,12 +10,13 @@ type Hub struct {
 	clients    map[*Client]bool
 	register   chan *Client
 	unregister chan *Client
-	broadcast  chan Event
+	broadcast  chan []byte
 }
 
 type Client struct {
+	hub  *Hub
 	conn *websocket.Conn
-	send chan Event
+	send chan []byte
 }
 
 type Event struct {
@@ -25,12 +28,15 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case c := <-h.register:
+			fmt.Println("h.register!!!")
 			h.clients[c] = true
 		case c := <-h.unregister:
+			fmt.Println("h.UNregister!!")
 			delete(h.clients, c)
 			close(c.send)
 		case msg := <-h.broadcast:
 			for c := range h.clients {
+				fmt.Println("recieved new msg!:", msg)
 				c.send <- msg
 			}
 		}
@@ -51,9 +57,11 @@ func (c *Client) readPump(h *Hub) {
 	}()
 
 	for {
-		_, _, err := c.conn.ReadMessage()
+		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
 			break
 		}
+		fmt.Println("broadcast!", msg)
+		c.hub.broadcast <- msg
 	}
 }

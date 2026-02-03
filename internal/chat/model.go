@@ -26,6 +26,7 @@ type URLs struct {
 	Poll        string
 	DeleteRoute string
 	Delete      func(id int) string
+	WS          string
 }
 
 type MessageView struct {

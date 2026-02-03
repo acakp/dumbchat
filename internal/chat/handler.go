@@ -29,12 +29,16 @@ func handleWS(hub *Hub) http.HandlerFunc {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "Error upgrading to websockets", http.StatusUpgradeRequired)
+			return
 		}
 
+		fmt.Println("registering a client........")
 		client := &Client{
+			hub:  hub,
 			conn: conn,
-			send: make(chan Event),
+			send: make(chan []byte),
 		}
+		client.hub.register <- client
 
 		go client.writePump()
 		go client.readPump(hub)
@@ -83,6 +87,9 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to save message", http.StatusInternalServerError)
 		return
 	}
+
+	// notify websocket hub about new message
+	h.Hub.broadcast <- []byte("new message")
 
 	msv := MessageView{
 		Msg:     msg,
