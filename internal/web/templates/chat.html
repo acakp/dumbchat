@@ -1,5 +1,5 @@
 {{ define "chat" }}
-<div class="chat-window" hx-ext="ws" ws-connect="/ws">
+<div class="chat-window" hx-ext="ws" ws-connect="{{ .WS }}">
   <h3>leave me a message or chat with someone</h3>
 
   <div class="chat-container" id="chat" hx-get="{{ .Poll }}" hx-trigger="every 3s" hx-swap="innerHTML">

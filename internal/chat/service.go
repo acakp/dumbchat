@@ -22,6 +22,7 @@ func NewURLs(base string) URLs {
 		Delete: func(id int) string {
 			return fmt.Sprintf("%s/messages/%d", base, id)
 		},
+		WS: base + "/ws",
 	}
 }
 
