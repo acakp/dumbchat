@@ -40,7 +40,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	hub := ch.Hub{}
+	hub := ch.Hub{
+		Clients:    make(map[*ch.Client]bool),
+		Register:   make(chan *ch.Client),
+		Unregister: make(chan *ch.Client),
+		Broadcast:  make(chan []byte),
+	}
 	go hub.Run()
 
 	basePath := os.Getenv("CHAT_BASE_PATH")

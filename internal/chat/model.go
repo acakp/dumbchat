@@ -36,10 +36,10 @@ type MessageView struct {
 }
 
 type Message struct {
-	ID        int64
-	Nickname  string
-	Content   string
-	CreatedAt time.Time
+	ID        int64     `json:"id"`
+	Nickname  string    `json:"nickname"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (m Message) FormattedTime() string {

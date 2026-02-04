@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -24,6 +25,18 @@ func NewURLs(base string) URLs {
 		},
 		WS: base + "/ws",
 	}
+}
+
+// customize json marshaling to include formatted time
+func (m Message) MarshalJSON() ([]byte, error) {
+	type Alias Message
+	return json.Marshal(&struct {
+		*Alias
+		FormattedTime string `json:"formattedTime"`
+	}{
+		Alias:         (*Alias)(&m),
+		FormattedTime: m.FormattedTime(),
+	})
 }
 
 func parseMessage(r *http.Request) (Message, error) {

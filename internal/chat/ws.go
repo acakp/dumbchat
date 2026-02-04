@@ -1,16 +1,17 @@
 package chat
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
 )
 
 type Hub struct {
-	clients    map[*Client]bool
-	register   chan *Client
-	unregister chan *Client
-	broadcast  chan []byte
+	Clients    map[*Client]bool
+	Register   chan *Client
+	Unregister chan *Client
+	Broadcast  chan []byte
 }
 
 type Client struct {
@@ -24,19 +25,24 @@ type Event struct {
 	Data any    `json:"data"`
 }
 
+func (e Event) ToJSON() []byte {
+	jsonData, _ := json.Marshal(e)
+	return jsonData
+}
+
 func (h *Hub) Run() {
 	for {
 		select {
-		case c := <-h.register:
+		case c := <-h.Register:
 			fmt.Println("h.register!!!")
-			h.clients[c] = true
-		case c := <-h.unregister:
+			h.Clients[c] = true
+		case c := <-h.Unregister:
 			fmt.Println("h.UNregister!!")
-			delete(h.clients, c)
+			delete(h.Clients, c)
 			close(c.send)
-		case msg := <-h.broadcast:
-			for c := range h.clients {
-				fmt.Println("recieved new msg!:", msg)
+		case msg := <-h.Broadcast:
+			for c := range h.Clients {
+				fmt.Println("recieved new msg!:", string(msg))
 				c.send <- msg
 			}
 		}
@@ -52,7 +58,7 @@ func (c *Client) writePump() {
 
 func (c *Client) readPump(h *Hub) {
 	defer func() {
-		h.unregister <- c
+		h.Unregister <- c
 		c.conn.Close()
 	}()
 
@@ -61,7 +67,7 @@ func (c *Client) readPump(h *Hub) {
 		if err != nil {
 			break
 		}
-		fmt.Println("broadcast!", msg)
-		c.hub.broadcast <- msg
+		fmt.Println("broadcast!", string(msg))
+		c.hub.Broadcast <- msg
 	}
 }

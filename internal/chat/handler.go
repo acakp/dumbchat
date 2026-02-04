@@ -25,20 +25,26 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 func handleWS(hub *Hub) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		upgrader := websocket.Upgrader{}
+		upgrader := websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		}
+
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "Error upgrading to websockets", http.StatusUpgradeRequired)
 			return
 		}
 
-		fmt.Println("registering a client........")
+		fmt.Println("creating a client (in handleWS)........")
 		client := &Client{
 			hub:  hub,
 			conn: conn,
 			send: make(chan []byte),
 		}
-		client.hub.register <- client
+		hub.Register <- client
+		fmt.Println("client has been registered........")
 
 		go client.writePump()
 		go client.readPump(hub)
@@ -89,7 +95,11 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// notify websocket hub about new message
-	h.Hub.broadcast <- []byte("new message")
+	event := Event{
+		Type: "new_message",
+		Data: msg,
+	}
+	h.Hub.Broadcast <- event.ToJSON()
 
 	msv := MessageView{
 		Msg:     msg,
