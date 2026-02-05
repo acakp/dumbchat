@@ -71,6 +71,25 @@ func CreateTables(db *sql.DB) error {
 	return err
 }
 
+func getMessage(db *sql.DB, messageID int) (Message, error) {
+	rows, err := db.Query(`
+		SELECT id, nickname, content, created_at
+		FROM messages WHERE id=?
+	`, messageID)
+	if err != nil {
+		return Message{}, err
+	}
+	defer rows.Close()
+
+	var msg Message
+	for rows.Next() {
+		if err := rows.Scan(&msg.ID, &msg.Nickname, &msg.Content, &msg.CreatedAt); err != nil {
+			return Message{}, err
+		}
+	}
+	return msg, nil
+}
+
 func getMessages(db *sql.DB) ([]Message, error) {
 	rows, err := db.Query(`
 		SELECT id, nickname, content, created_at
