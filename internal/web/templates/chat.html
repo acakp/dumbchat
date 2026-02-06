@@ -3,10 +3,13 @@
   <h3>leave me a message or chat with someone</h3>
 
   <div class="chat-container" id="chat">
+    {{ range .Messages }}
+    {{ template "msg" . }}
+    {{ end }}
   </div>
 
   <div class="input-area">
-    <form hx-post="{{ .Post }}" hx-target="#chat" hx-swap="beforeend">
+    <form hx-post="{{ .URLs.Post }}" hx-target="#chat" hx-swap="beforeend">
       <input type="text" class="input-field" name="nickname" placeholder="nickname"><br>
       <textarea type="text" class="input-field" name="content" placeholder="message" rows=4 required></textarea><br>
       <button class="send-btn" name="send-btn">send</button>

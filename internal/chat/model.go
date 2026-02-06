@@ -30,8 +30,14 @@ type URLs struct {
 	Message     string
 }
 
+type ChatView struct {
+	Messages []MessageView
+	IsAdmin  bool
+	URLs     URLs
+}
+
 type MessageView struct {
-	URLs    URLs
+	URLs    URLs // need to remove it later
 	Msg     Message
 	IsAdmin bool
 }

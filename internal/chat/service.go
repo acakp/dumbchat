@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -26,6 +27,27 @@ func NewURLs(base string) URLs {
 		WS:      base + "/ws",
 		Message: base + "/message",
 	}
+}
+
+func getChatView(db *sql.DB, isAdmin bool, urls URLs) (ChatView, error) {
+	msgs, err := getMessages(db)
+	if err != nil {
+		return ChatView{}, err
+	}
+
+	views := make([]MessageView, 0, len(msgs))
+	for _, msg := range msgs {
+		views = append(views, MessageView{
+			Msg:     msg,
+			IsAdmin: isAdmin,
+		})
+	}
+
+	return ChatView{
+		Messages: views,
+		IsAdmin:  isAdmin,
+		URLs:     urls,
+	}, nil
 }
 
 // customize json marshaling to include formatted time

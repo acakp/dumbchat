@@ -52,12 +52,34 @@ func handleWS(hub *Hub) http.HandlerFunc {
 	}
 }
 
+// func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
+// 	err := h.Tmpls.ChatTmpl.Execute(w, h.URLs)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+// 		return
+// 	}
+// }
+
 func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
-	err := h.Tmpls.ChatTmpl.Execute(w, h.URLs)
+	c, err := r.Cookie("admin_session")
+	isAdmin := false
+	if err == nil {
+		if erra := auth.IsAdminSession(h.DB, c); erra == nil {
+			isAdmin = true
+		}
+	}
+
+	chatView, err := getChatView(h.DB, isAdmin, h.URLs)
+	if err != nil {
+		http.Error(w, "Failed to load chat", http.StatusInternalServerError)
+		return
+	}
+
+	err = h.Tmpls.ChatTmpl.Execute(w, chatView)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+		http.Error(w, "Failed to load chat template", http.StatusInternalServerError)
 	}
 }
 

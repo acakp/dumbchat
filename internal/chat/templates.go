@@ -23,6 +23,7 @@ func ParseTemplates(t *template.Template) parsedTemplates {
 	// chatTmpl = t
 	// _, err := chatTmpl.Parse(web.ChatHTML)
 	_, err := t.Parse(web.ChatHTML)
+	_, err = t.Parse(web.MessageHTML)
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}
