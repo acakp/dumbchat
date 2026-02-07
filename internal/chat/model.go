@@ -37,7 +37,7 @@ type ChatView struct {
 }
 
 type MessageView struct {
-	URLs    URLs // need to remove it later
+	URLs    URLs
 	Msg     Message
 	IsAdmin bool
 }

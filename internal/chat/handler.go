@@ -123,15 +123,6 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 		Data: msg,
 	}
 	h.Hub.Broadcast <- event.ToJSON()
-
-	msv := MessageView{
-		Msg:     msg,
-		IsAdmin: false,
-		URLs:    h.URLs,
-	}
-
-	w.Header().Set("Content-Type", "text/html")
-	h.Tmpls.MessageTmpl.ExecuteTemplate(w, "msg", msv)
 }
 
 func (h *Handler) poll(w http.ResponseWriter, r *http.Request) {
@@ -220,6 +211,7 @@ func (h *Handler) deleteMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+	msg, err := getMessage(h.DB, messageID)
 	err = deleteMessage(h.DB, messageID)
 	if err != nil {
 		if errors.Is(err, ErrMessageNotFound) {
@@ -230,6 +222,12 @@ func (h *Handler) deleteMessage(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	// notify websocket hub about deleting a  message
+	event := Event{
+		Type: "delete_message",
+		Data: msg,
+	}
+	h.Hub.Broadcast <- event.ToJSON()
 	w.WriteHeader(http.StatusOK)
 }
 

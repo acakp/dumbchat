@@ -38,6 +38,7 @@ func getChatView(db *sql.DB, isAdmin bool, urls URLs) (ChatView, error) {
 	views := make([]MessageView, 0, len(msgs))
 	for _, msg := range msgs {
 		views = append(views, MessageView{
+			URLs:    urls,
 			Msg:     msg,
 			IsAdmin: isAdmin,
 		})
