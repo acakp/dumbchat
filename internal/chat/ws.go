@@ -52,7 +52,7 @@ func (h *Hub) Run() {
 func (c *Client) writePump() {
 	defer c.conn.Close()
 	for msg := range c.send {
-		c.conn.WriteJSON(msg)
+		c.conn.WriteMessage(websocket.TextMessage, msg)
 	}
 }
 
