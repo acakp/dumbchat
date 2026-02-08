@@ -3,7 +3,6 @@ package chat
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -38,28 +37,17 @@ func handleWS(hub *Hub) http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("creating a client (in handleWS)........")
 		client := &Client{
 			hub:  hub,
 			conn: conn,
 			send: make(chan []byte),
 		}
 		hub.Register <- client
-		fmt.Println("client has been registered........")
 
 		go client.writePump()
 		go client.readPump(hub)
 	}
 }
-
-// func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
-// 	err := h.Tmpls.ChatTmpl.Execute(w, h.URLs)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-// 		return
-// 	}
-// }
 
 func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("admin_session")
@@ -78,7 +66,6 @@ func (h *Handler) chat(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Tmpls.ChatTmpl.Execute(w, chatView)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Failed to load chat template", http.StatusInternalServerError)
 	}
 }

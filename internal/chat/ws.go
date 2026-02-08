@@ -2,7 +2,6 @@ package chat
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/gorilla/websocket"
 )
@@ -34,15 +33,12 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case c := <-h.Register:
-			fmt.Println("h.register!!!")
 			h.Clients[c] = true
 		case c := <-h.Unregister:
-			fmt.Println("h.UNregister!!")
 			delete(h.Clients, c)
 			close(c.send)
 		case msg := <-h.Broadcast:
 			for c := range h.Clients {
-				fmt.Println("recieved new msg!:", string(msg))
 				c.send <- msg
 			}
 		}
@@ -67,7 +63,6 @@ func (c *Client) readPump(h *Hub) {
 		if err != nil {
 			break
 		}
-		fmt.Println("broadcast!", string(msg))
 		c.hub.Broadcast <- msg
 	}
 }
