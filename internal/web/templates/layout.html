@@ -9,9 +9,14 @@
 <body>
   {{template "chat" .}}
 
+  <script>
+    window.chatURLs = {
+      ws: "{{ .URLs.WS }}",
+      message: "{{ .URLs.Message }}"
+    }
+  </script>
+
   <script src="/static/htmx.js" defer></script>
   <script src="/static/chat.js" defer></script>
   <script src="/static/ws.js" defer></script>
 </body>
-
-</html>

@@ -1,13 +1,13 @@
 function processWsMessage() {
   try {
-  const conn = new WebSocket(window.location.origin.replace("http", "ws") + "/chat/ws");
+  const conn = new WebSocket(window.location.origin.replace("http", "ws") + window.chatURLs.ws);
   conn.onmessage = (event) => {
       const msg = JSON.parse(event.data);
 
       if (msg.type === "new_message") {
         htmx.ajax(
           "GET",
-          `/chat/message/${msg.data.id}`,
+          `${window.chatURLs.message}/${msg.data.id}`,
           { target: "#chat", swap: "beforeend" }
         );
       }
