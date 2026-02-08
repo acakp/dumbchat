@@ -1,10 +1,7 @@
 package chat
 
 import (
-	"database/sql"
-	"fmt"
 	"html/template"
-	"net/http"
 
 	"github.com/acakp/dumbchat/internal/web"
 )
@@ -19,9 +16,6 @@ func ParseTemplatesCmd() parsedTemplates {
 
 func ParseTemplates(t *template.Template) parsedTemplates {
 	var ret parsedTemplates
-	// chatTmpl := template.New("chat")
-	// chatTmpl = t
-	// _, err := chatTmpl.Parse(web.ChatHTML)
 	_, err := t.Parse(web.ChatHTML)
 	_, err = t.Parse(web.MessageHTML)
 	if err != nil {
@@ -44,19 +38,4 @@ func ParseTemplates(t *template.Template) parsedTemplates {
 	ret.LoginTmpl = loginTmpl
 
 	return ret
-}
-
-func showAllMessages(w http.ResponseWriter, db *sql.DB, msgTmpl *template.Template, msv MessageView) error {
-	msgs, err := getMessages(db)
-	if err != nil {
-		return err
-	}
-	for _, msg := range msgs {
-		msv.Msg = msg
-		err = msgTmpl.ExecuteTemplate(w, "msg", msv)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	return nil
 }

@@ -15,7 +15,6 @@ import (
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/", h.chat)
 	r.Post("/messages", h.messages)
-	r.Get("/poll", h.poll)
 	r.Delete("/messages/{messageID}", requireAdmin(h.DB, http.HandlerFunc(h.deleteMessage)))
 	r.Get("/admin/login", h.adminGet)
 	r.Post("/admin/login", h.adminPost)
@@ -110,27 +109,6 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 		Data: msg,
 	}
 	h.Hub.Broadcast <- event.ToJSON()
-}
-
-func (h *Handler) poll(w http.ResponseWriter, r *http.Request) {
-	// check for admin
-	c, err := r.Cookie("admin_session")
-	isAdmin := false
-	if err == nil {
-		if erra := auth.IsAdminSession(h.DB, c); erra == nil {
-			isAdmin = true
-		}
-	}
-	msv := MessageView{
-		IsAdmin: isAdmin,
-		URLs:    h.URLs,
-	}
-	// show msgs
-	err = showAllMessages(w, h.DB, h.Tmpls.MessageTmpl, msv)
-	if err != nil {
-		http.Error(w, "Failed to load messages", http.StatusInternalServerError)
-		return
-	}
 }
 
 func (h *Handler) adminGet(w http.ResponseWriter, r *http.Request) {

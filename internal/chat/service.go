@@ -19,7 +19,6 @@ func NewURLs(base string) URLs {
 	return URLs{
 		Base:        base,
 		Post:        base + "/messages",
-		Poll:        base + "/poll",
 		DeleteRoute: base + "/messages/{messageID}",
 		Delete: func(id int) string {
 			return fmt.Sprintf("%s/messages/%d", base, id)
