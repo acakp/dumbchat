@@ -107,3 +107,8 @@ func validateNickname(msg Message) error {
 
 	return nil
 }
+
+func (e Event) ToJSON() []byte {
+	jsonData, _ := json.Marshal(e)
+	return jsonData
+}

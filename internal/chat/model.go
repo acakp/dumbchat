@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"html/template"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type Handler struct {
@@ -51,4 +53,22 @@ type Message struct {
 
 func (m Message) FormattedTime() string {
 	return m.CreatedAt.Format("15:04 02.01.06")
+}
+
+type Hub struct {
+	Clients    map[*Client]bool
+	Register   chan *Client
+	Unregister chan *Client
+	Broadcast  chan []byte
+}
+
+type Client struct {
+	hub  *Hub
+	conn *websocket.Conn
+	send chan []byte
+}
+
+type Event struct {
+	Type string `json:"type"`
+	Data any    `json:"data"`
 }

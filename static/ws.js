@@ -15,7 +15,6 @@ function processWsMessage() {
       if (msg.type === "delete_message") {
         const el = document.querySelector(`[data-id="${msg.data.id}"]`);
         if (el) el.remove();
-        console.log("msg deleted, id:", msg.data.id)
       }
     };
   } catch(e) {

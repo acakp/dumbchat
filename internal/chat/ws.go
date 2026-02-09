@@ -1,33 +1,8 @@
 package chat
 
 import (
-	"encoding/json"
-
 	"github.com/gorilla/websocket"
 )
-
-type Hub struct {
-	Clients    map[*Client]bool
-	Register   chan *Client
-	Unregister chan *Client
-	Broadcast  chan []byte
-}
-
-type Client struct {
-	hub  *Hub
-	conn *websocket.Conn
-	send chan []byte
-}
-
-type Event struct {
-	Type string `json:"type"`
-	Data any    `json:"data"`
-}
-
-func (e Event) ToJSON() []byte {
-	jsonData, _ := json.Marshal(e)
-	return jsonData
-}
 
 func (h *Hub) Run() {
 	for {
