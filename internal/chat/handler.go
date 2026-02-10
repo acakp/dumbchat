@@ -141,6 +141,7 @@ func (h *Handler) adminPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	auth.IssueAdminSession(w, sessionID)
+	http.Redirect(w, r, h.URLs.Base, http.StatusSeeOther)
 }
 
 func (h *Handler) renderMessage(w http.ResponseWriter, r *http.Request) {
