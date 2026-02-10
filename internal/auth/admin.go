@@ -12,7 +12,7 @@ func IssueAdminSession(w http.ResponseWriter, sessionID string) {
 		Value:    sessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // true is HTTPS only
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   36000, // 10h
 	}
