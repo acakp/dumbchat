@@ -7,7 +7,8 @@ import (
 )
 
 func ParseTemplatesCmd() parsedTemplates {
-	layoutTmpl, err := template.ParseFiles("internal/web/templates/layout.html")
+	layoutTmpl := template.New("layout")
+	layoutTmpl, err := layoutTmpl.Parse(web.LayoutHTML)
 	if err != nil {
 		return parsedTemplates{err, nil, nil, nil}
 	}
