@@ -1,3 +1,51 @@
+.chat-window {
+    --chat-background-color: #fff;
+    --chat-text-color: #000;
+    --chat-border-color: #ddd;
+    --chat-message-hover-bg: #f9f9f9;
+    --chat-delete-btn-color: #fe0000;
+    --chat-delete-btn-hover-bg: #ccc;
+    --chat-delete-btn-hover-color: #333;
+    --chat-sender-color: #000;
+    --chat-text-msg-color: #333;
+    --chat-time-color: #666;
+    --chat-footer-color: #888;
+    --chat-send-btn-bg: #000;
+    --chat-send-btn-hover-bg: #333;
+    --chat-send-btn-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .chat-window {
+        --chat-background-color: #222;
+        --chat-text-color: #ddd;
+        --chat-border-color: #555;
+        --chat-message-hover-bg: #3a3a3a;
+        --chat-delete-btn-color: #ff6666;
+        --chat-delete-btn-hover-bg: #666;
+        --chat-delete-btn-hover-color: #fff;
+        --chat-sender-color: #eee;
+        --chat-text-msg-color: #bbb;
+        --chat-time-color: #aaa;
+        --chat-footer-color: #aaa;
+        --chat-send-btn-bg: #444;
+        --chat-send-btn-hover-bg: #666;
+        --chat-send-btn-color: #fff;
+    }
+}
+
+.chat-layout {
+    --chat-background-color: #fff;
+    --chat-text-color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+    .chat-layout {
+        --chat-background-color: #222;
+        --chat-text-color: #ddd;
+    }
+}
+
 .chat-window * {
     margin: 0;
     padding: 0;
@@ -7,11 +55,16 @@
 .chat-window body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 15px;
-    color: #000;
-    background: #fff;
+    color: var(--chat-text-color);
+    background: var(--chat-background-color);
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.chat-layout {
+    color: var(--chat-text-color);
+    background: var(--chat-background-color);
 }
 
 .chat-window h3 {
@@ -21,7 +74,7 @@
 .chat-window .chat-container {
     height: 400px;
     overflow-y: auto;
-    border: 1px solid #ddd;
+    border: 1px solid var(--chat-border-color);
     border-radius: 8px;
     padding: 6px 10px;
 }
@@ -31,7 +84,7 @@
 }
 
 .chat-window .message:hover {
-    background-color: #f9f9f9;
+    background-color: var(--chat-message-hover-bg);
 }
 
 .chat-window .message:hover .delete-btn {
@@ -46,7 +99,7 @@
 
 .chat-window .time {
     font-size: 13px;
-    color: #666;
+    color: var(--chat-time-color);
     font-weight: 400;
     margin-right: 8px;
 }
@@ -54,12 +107,12 @@
 .chat-window .sender {
     font-weight: 600;
     margin-right: 8px;
-    color: #000;
+    color: var(--chat-sender-color);
 }
 
 .chat-window .text {
     font-weight: 400;
-    color: #333;
+    color: var(--chat-text-msg-color);
     flex: 1;
 }
 
@@ -69,14 +122,14 @@
     right: 1px;
     width: 50px;
     height: 20px;
-    color: #fe0000;
+    color: var(--chat-delete-btn-color);
     opacity: 0;
     justify-content: center;
 }
 
 .chat-window .delete-btn:hover {
-    background: #ccc;
-    color: #333;
+    background: var(--chat-delete-btn-hover-bg);
+    color: var(--chat-delete-btn-hover-color);
 }
 
 .chat-window .input-area {
@@ -89,22 +142,24 @@
     width: 100%;
     padding: 6px 10px;
     margin: 3px 0px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--chat-border-color);
     border-radius: 8px;
     font-size: 15px;
     font-family: inherit;
+    background: var(--chat-background-color);
+    color: var(--chat-text-color);
 }
 
 .chat-window .input-field:focus {
     outline: none;
-    border-color: #666;
+    border-color: var(--chat-time-color);
 }
 
 .chat-window .send-btn {
     padding: 6px 10px;
     margin: 3px 0px;
-    background: #000;
-    color: #fff;
+    background: var(--chat-send-btn-bg);
+    color: var(--chat-send-btn-color);
     border: none;
     border-radius: 8px;
     font-size: 15px;
@@ -114,44 +169,44 @@
 }
 
 .chat-window .send-btn:hover {
-    background: #333;
+    background: var(--chat-send-btn-hover-bg);
 }
 
 .chat-window footer {
     padding-top: 10px;
     font-size: 13px;
-    color: #888;
+    color: var(--chat-footer-color);
 }
 
 .chat-window @media (max-width: 600px) {
         body {
             padding: 15px;
         }
-        
+
         .message-line {
             flex-direction: column;
             align-items: flex-start;
         }
-        
+
         .time {
             margin-bottom: 2px;
         }
-        
+
         .send-btn {
             width: 100%;
             float: none;
         }
     }
-    
+
 .chat-window @media (max-width: 400px) {
         body {
             padding: 10px;
         }
-        
+
         .input-field {
             padding: 6px 10px;
         }
-        
+
         textarea.input-field {
             min-height: 50px;
         }
