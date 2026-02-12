@@ -98,7 +98,11 @@ func extractMessageID(r *http.Request) (int, error) {
 }
 
 func validateNickname(msg Message) error {
-	bannedNicknames := strings.SplitSeq(os.Getenv("BANNED_NICKNAMES"), ",")
+	bn := os.Getenv("BANNED_NICKNAMES")
+	if bn == "" {
+		return nil
+	}
+	bannedNicknames := strings.SplitSeq(bn, ",")
 	for banned := range bannedNicknames {
 		if strings.Contains(msg.Nickname, banned) {
 			return fmt.Errorf("prohibited nickname")
