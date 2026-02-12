@@ -3,7 +3,7 @@ package chat
 import (
 	"html/template"
 
-	"github.com/acakp/dumbchat/internal/web"
+	"github.com/acakp/dumbchat/web"
 )
 
 func ParseTemplatesCmd() parsedTemplates {

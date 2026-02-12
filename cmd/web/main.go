@@ -7,6 +7,7 @@ import (
 	"os"
 
 	ch "github.com/acakp/dumbchat/internal/chat"
+	"github.com/acakp/dumbchat/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
@@ -22,7 +23,8 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
+	// fs := http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS)))
+	fs := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", fs)
 
 	ts := ch.ParseTemplatesCmd()
