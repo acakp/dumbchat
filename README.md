@@ -1,5 +1,7 @@
 # dumbchat
 
+![screenshot](screenshot.png)
+
 A lightweight, embeddable real-time chat widget written in Go.
 
 This project supports:
