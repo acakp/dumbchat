@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -34,6 +36,12 @@ func (c *Client) readPump(h *Hub) {
 	}()
 
 	for {
+		if !c.rate.Allow() {
+			fmt.Println("---- rate limit, close conn ----")
+			c.conn.Close()
+			return
+		}
+
 		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
 			break

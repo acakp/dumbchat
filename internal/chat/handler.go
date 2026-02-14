@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/time/rate"
 )
 
 func (h *Handler) RegisterRoutes(r chi.Router) {
@@ -40,6 +41,7 @@ func handleWS(hub *Hub) http.HandlerFunc {
 			hub:  hub,
 			conn: conn,
 			send: make(chan []byte),
+			rate: rate.NewLimiter(1, 5),
 		}
 		hub.Register <- client
 
