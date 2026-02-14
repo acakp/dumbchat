@@ -62,6 +62,14 @@ func (m Message) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (m *Message) truncateMessageContent() {
+	maxLen := 4000
+	if len(m.Content) > maxLen {
+		m.Content = m.Content[:maxLen]
+	}
+	fmt.Println("msg truncated:", m.Content)
+}
+
 func parseMessage(r *http.Request) (Message, error) {
 	err := r.ParseForm()
 	if err != nil {

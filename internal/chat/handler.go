@@ -99,6 +99,7 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// process the form data
+	msg.truncateMessageContent()
 	msg.ID, err = insertMessage(h.DB, msg)
 	if err != nil {
 		http.Error(w, "Failed to save message", http.StatusInternalServerError)
