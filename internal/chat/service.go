@@ -67,7 +67,20 @@ func (m *Message) truncateMessageContent() {
 	if len(m.Content) > maxLen {
 		m.Content = m.Content[:maxLen]
 	}
-	fmt.Println("msg truncated:", m.Content)
+}
+
+// allows 5 websocket connections per IP
+// if there is more than 5 conns on current IP,
+// returns error, nil otherwise
+func (h *Hub) connLimit(r *http.Request) error {
+	ip := r.Header.Get("X-Real-IP")
+	count, _ := h.IpCounts.LoadOrStore(ip, 0)
+	fmt.Println("coonections from this ip:", count)
+	if count.(int) > 5 {
+		return fmt.Errorf("too many connections from this IP")
+	}
+	h.IpCounts.Store(ip, count.(int)+1)
+	return nil
 }
 
 func parseMessage(r *http.Request) (Message, error) {

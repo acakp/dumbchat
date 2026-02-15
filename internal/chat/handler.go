@@ -37,6 +37,11 @@ func handleWS(hub *Hub) http.HandlerFunc {
 			return
 		}
 
+		err = hub.connLimit(r)
+		if err != nil {
+			http.Error(w, "Too many connections", http.StatusTooManyRequests)
+			return
+		}
 		client := &Client{
 			hub:  hub,
 			conn: conn,

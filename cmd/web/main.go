@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/acakp/dumbchat/web"
@@ -23,7 +24,6 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	// fs := http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS)))
 	fs := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", fs)
 
@@ -43,6 +43,7 @@ func main() {
 	}
 
 	hub := ch.Hub{
+		IpCounts:   sync.Map{},
 		Clients:    make(map[*ch.Client]bool),
 		Register:   make(chan *ch.Client),
 		Unregister: make(chan *ch.Client),

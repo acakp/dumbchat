@@ -3,6 +3,7 @@ package chat
 import (
 	"database/sql"
 	"html/template"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -57,6 +58,7 @@ func (m Message) FormattedTime() string {
 }
 
 type Hub struct {
+	IpCounts   sync.Map
 	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
