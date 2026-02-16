@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -21,9 +23,27 @@ func (h *Hub) Run() {
 }
 
 func (c *Client) writePump() {
-	defer c.conn.Close()
-	for msg := range c.send {
-		c.conn.WriteMessage(websocket.TextMessage, msg)
+	ticker := time.NewTicker(30 * time.Second)
+	defer func() {
+		ticker.Stop()
+		c.conn.Close()
+	}()
+	for {
+		select {
+		case msg, ok := <-c.send:
+			if ok {
+				c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				c.conn.WriteMessage(websocket.TextMessage, msg)
+			} else {
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+		case <-ticker.C:
+			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
 	}
 }
 
@@ -33,6 +53,9 @@ func (c *Client) readPump(h *Hub) {
 		c.conn.Close()
 	}()
 
+	c.conn.SetReadLimit(4096)
+	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
 	for {
 		if !c.rate.Allow() {
 			c.conn.Close()
