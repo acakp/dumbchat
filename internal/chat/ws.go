@@ -27,10 +27,11 @@ func (h *Hub) Run() {
 	}
 }
 
-func (c *Client) writePump() {
+func (c *Client) writePump(h *Hub) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer func() {
 		ticker.Stop()
+		h.releaseConnection(c.ip)
 		c.conn.Close()
 	}()
 	for {
@@ -55,6 +56,7 @@ func (c *Client) writePump() {
 func (c *Client) readPump(h *Hub) {
 	defer func() {
 		h.Unregister <- c
+		h.releaseConnection(c.ip)
 		c.conn.Close()
 	}()
 

@@ -37,12 +37,14 @@ func handleWS(hub *Hub) http.HandlerFunc {
 			return
 		}
 
-		err = hub.connLimit(r)
+		clientIp := clientIP(r)
+		err = hub.trackConnection(clientIp)
 		if err != nil {
 			http.Error(w, "Too many connections", http.StatusTooManyRequests)
 			return
 		}
 		client := &Client{
+			ip:   clientIp,
 			hub:  hub,
 			conn: conn,
 			send: make(chan []byte),
@@ -50,7 +52,7 @@ func handleWS(hub *Hub) http.HandlerFunc {
 		}
 		hub.Register <- client
 
-		go client.writePump()
+		go client.writePump(hub)
 		go client.readPump(hub)
 	}
 }

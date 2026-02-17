@@ -70,19 +70,29 @@ func (m *Message) truncateMessageContent() {
 	}
 }
 
-// allows 5 websocket connections per IP
-// if there is more than 5 conns on current IP,
+// allows 6 websocket connections per IP
+// if there is more than 6 conns on current IP,
 // returns error, nil otherwise
-func (h *Hub) connLimit(r *http.Request) error {
-	ip := clientIP(r)
-	fmt.Println("ip:", ip)
+func (h *Hub) trackConnection(ip string) error {
 	count, _ := h.IpCounts.LoadOrStore(ip, 0)
-	fmt.Println("coonections from this ip:", count)
 	if count.(int) > 5 {
 		return fmt.Errorf("too many connections from this IP")
 	}
 	h.IpCounts.Store(ip, count.(int)+1)
 	return nil
+}
+
+func (h *Hub) releaseConnection(ip string) {
+	v, ok := h.IpCounts.Load(ip)
+	if !ok {
+		return
+	}
+	count := v.(int) - 1
+	if count <= 0 {
+		h.IpCounts.Delete(ip)
+	} else {
+		h.IpCounts.Store(ip, count)
+	}
 }
 
 func clientIP(r *http.Request) string {

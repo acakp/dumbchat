@@ -66,6 +66,7 @@ type Hub struct {
 }
 
 type Client struct {
+	ip   string
 	hub  *Hub
 	conn *websocket.Conn
 	send chan []byte
