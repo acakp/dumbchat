@@ -58,7 +58,8 @@ func (m Message) FormattedTime() string {
 }
 
 type Hub struct {
-	IpCounts   sync.Map
+	mu         sync.Mutex
+	IpCounts   map[string]int
 	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client

@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 
 	ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/acakp/dumbchat/web"
@@ -43,7 +42,7 @@ func main() {
 	}
 
 	hub := ch.Hub{
-		IpCounts:   sync.Map{},
+		IpCounts:   make(map[string]int),
 		Clients:    make(map[*ch.Client]bool),
 		Register:   make(chan *ch.Client),
 		Unregister: make(chan *ch.Client),

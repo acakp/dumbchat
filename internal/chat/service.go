@@ -74,24 +74,33 @@ func (m *Message) truncateMessageContent() {
 // if there is more than 6 conns on current IP,
 // returns error, nil otherwise
 func (h *Hub) trackConnection(ip string) error {
-	count, _ := h.IpCounts.LoadOrStore(ip, 0)
-	if count.(int) > 5 {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	count, ok := h.IpCounts[ip]
+	if !ok {
+		h.IpCounts[ip] = 0
+	}
+	if count > 5 {
 		return fmt.Errorf("too many connections from this IP")
 	}
-	h.IpCounts.Store(ip, count.(int)+1)
+	h.IpCounts[ip] = count + 1
 	return nil
 }
 
 func (h *Hub) releaseConnection(ip string) {
-	v, ok := h.IpCounts.Load(ip)
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	count, ok := h.IpCounts[ip]
 	if !ok {
 		return
 	}
-	count := v.(int) - 1
+	count = count - 1
 	if count <= 0 {
-		h.IpCounts.Delete(ip)
+		delete(h.IpCounts, ip)
 	} else {
-		h.IpCounts.Store(ip, count)
+		h.IpCounts[ip] = count
 	}
 }
 
