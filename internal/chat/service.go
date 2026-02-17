@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -73,7 +74,8 @@ func (m *Message) truncateMessageContent() {
 // if there is more than 5 conns on current IP,
 // returns error, nil otherwise
 func (h *Hub) connLimit(r *http.Request) error {
-	ip := r.Header.Get("X-Real-IP")
+	ip := clientIP(r)
+	fmt.Println("ip:", ip)
 	count, _ := h.IpCounts.LoadOrStore(ip, 0)
 	fmt.Println("coonections from this ip:", count)
 	if count.(int) > 5 {
@@ -81,6 +83,21 @@ func (h *Hub) connLimit(r *http.Request) error {
 	}
 	h.IpCounts.Store(ip, count.(int)+1)
 	return nil
+}
+
+func clientIP(r *http.Request) string {
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+
+	if ip == "127.0.0.1" {
+		if real := r.Header.Get("X-Real-IP"); real != "" {
+			return real
+		}
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			return strings.Split(xff, ",")[0]
+		}
+	}
+
+	return ip
 }
 
 func parseMessage(r *http.Request) (Message, error) {
