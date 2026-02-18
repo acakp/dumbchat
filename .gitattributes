@@ -1,2 +1,2 @@
-web/static/htmx.js linguist-vendored
-web/static/htmx.min.js linguist-vendored
+web/static/htmx.js -linguist-vendored
+web/static/htmx.min.js -linguist-vendored
