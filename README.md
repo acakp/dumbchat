@@ -59,14 +59,14 @@ BANNED_NICKNAMES='admin,owner'
 
 1. Add these lines to the html page where you want to embed the chat:
 
-Into the <head>:
+Into the \<head\>:
 
 ```html
 <link rel="stylesheet" href="/static/styles.css">
 <script src="/static/htmx.js"></script>
 ```
 
-Into the <body> (in hx-get you should specify your base path from `.env`):
+Into the \<body\> (in hx-get you should specify your base path from `.env`):
 
 ```html
 <div hx-get="/chat" hx-trigger="load" hx-swap="innerHTML">
