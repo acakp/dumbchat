@@ -166,7 +166,7 @@ func (h *Handler) renderMessage(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, ErrMessageNotFound) {
 			http.Error(w, "Message not found", http.StatusNotFound)
 		} else {
-			log.Fatal(err)
+			log.Fatal("Error rendering message (Handler.renderMessage): ", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 		return

@@ -31,7 +31,7 @@ func main() {
 		log.Fatal(ts.Err)
 	}
 
-	db, errdb := ch.OpenDB()
+	db, errdb := ch.OpenDB(os.Getenv("DB"))
 	if errdb != nil {
 		log.Fatal(errdb)
 	}

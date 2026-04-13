@@ -53,6 +53,14 @@ Configuration is done via environment variables:
 CHAT_BASE_PATH='/chat'
 ADMIN_PASSWORD_HASH='paste bcrypt hash of your password here'
 BANNED_NICKNAMES='admin,owner'
+# 'sqlite' or 'postgres'
+DB='sqlite'
+# only if you use postgres:
+PGHOST='localhost'
+PGPORT='5432'
+PGDBNAME='dumbchat'
+PGUSER='dbuser'
+PGPASSWORD='mypassword'
 ```
 
 # Embedding

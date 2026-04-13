@@ -23,8 +23,8 @@ func IsAdminSession(db *sql.DB, cookie *http.Cookie) error {
 	rows, err := db.Query(`
 			SELECT id, expires_at
 			FROM admin_sessions
-			WHERE id = ?
-			AND expires_at > CURRENT_TIMESTAMP
+			WHERE id = $1
+			AND expires_at > CURRENT_TIMESTAMP;
 		`, cookie.Value)
 	if err != nil {
 		return err
