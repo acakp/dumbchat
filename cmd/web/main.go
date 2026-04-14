@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,9 +16,12 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	env := flag.String("e", ".env", "path to the env file")
+	flag.Parse()
+
+	err := godotenv.Load(*env)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error loading env file: ", err)
 	}
 
 	r := chi.NewRouter()
