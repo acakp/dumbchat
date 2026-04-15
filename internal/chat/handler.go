@@ -99,7 +99,7 @@ func (h *Handler) messages(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if isAdmin == false {
-		if err = validateNickname(msg); err != nil {
+		if err = validateNickname(msg, h.Cfg.BannedNicknames); err != nil {
 			http.Error(w, "Nickname contains prohibited words", http.StatusBadRequest)
 			return
 		}
@@ -140,7 +140,7 @@ func (h *Handler) adminPost(w http.ResponseWriter, r *http.Request) {
 	pwd := r.FormValue("password")
 
 	//compare hash and password
-	sessionID, err := checkAdminPassword(h.DB, pwd)
+	sessionID, err := checkAdminPassword(h.DB, pwd, h.Cfg.AdminHash)
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			http.Error(w, "Authentication Error", http.StatusUnauthorized)

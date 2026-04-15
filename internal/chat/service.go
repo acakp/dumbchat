@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -154,13 +153,11 @@ func extractMessageID(r *http.Request) (int, error) {
 	return messageID, err
 }
 
-func validateNickname(msg Message) error {
-	bn := os.Getenv("BANNED_NICKNAMES")
-	if bn == "" {
+func validateNickname(msg Message, bannedNicknames []string) error {
+	if len(bannedNicknames) == 0 {
 		return nil
 	}
-	bannedNicknames := strings.SplitSeq(bn, ",")
-	for banned := range bannedNicknames {
+	for _, banned := range bannedNicknames {
 		if strings.Contains(msg.Nickname, banned) {
 			return fmt.Errorf("prohibited nickname")
 		}

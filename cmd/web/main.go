@@ -1,27 +1,22 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/acakp/dumbchat/config"
 	ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/acakp/dumbchat/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/joho/godotenv"
 	_ "modernc.org/sqlite"
 )
 
 func main() {
-	env := flag.String("e", ".env", "path to the env file")
-	flag.Parse()
-
-	err := godotenv.Load(*env)
+	cfg, err := config.Init()
 	if err != nil {
-		log.Fatal("Error loading env file: ", err)
+		log.Fatal(err)
 	}
 
 	r := chi.NewRouter()
@@ -35,13 +30,13 @@ func main() {
 		log.Fatal(ts.Err)
 	}
 
-	db, errdb := ch.OpenDB(os.Getenv("DB"))
+	db, errdb := ch.OpenDB(cfg)
 	if errdb != nil {
 		log.Fatal(errdb)
 	}
 	defer db.Close()
 
-	if err := ch.CreateTables(db); err != nil {
+	if err := ch.CreateTables(db, cfg.DBDriver); err != nil {
 		log.Fatal(err)
 	}
 
@@ -54,16 +49,16 @@ func main() {
 	}
 	go hub.Run()
 
-	basePath := os.Getenv("CHAT_BASE_PATH")
-	chatURLs := ch.NewURLs(basePath)
+	chatURLs := ch.NewURLs(cfg.BasePath)
 	handler := ch.Handler{
+		Cfg:   cfg,
 		DB:    db,
 		Hub:   &hub,
 		URLs:  chatURLs,
 		Tmpls: &ts,
 	}
 
-	r.Route(basePath, func(r chi.Router) {
+	r.Route(cfg.BasePath, func(r chi.Router) {
 		handler.RegisterRoutes(r)
 	})
 

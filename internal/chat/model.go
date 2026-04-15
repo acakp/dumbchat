@@ -6,11 +6,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acakp/dumbchat/config"
 	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
 )
 
 type Handler struct {
+	Cfg   config.Config
 	DB    *sql.DB
 	Hub   *Hub
 	URLs  URLs
