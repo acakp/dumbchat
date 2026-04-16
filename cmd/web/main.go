@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/acakp/dumbchat/config"
@@ -62,6 +63,6 @@ func main() {
 		handler.RegisterRoutes(r)
 	})
 
-	fmt.Println("starting on :8888...")
-	http.ListenAndServe(":8888", r)
+	fmt.Printf("starting on :%s...", cfg.HttpPort)
+	http.ListenAndServe(net.JoinHostPort("", cfg.HttpPort), r)
 }

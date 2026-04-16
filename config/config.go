@@ -9,6 +9,7 @@ import (
 )
 
 type Config struct {
+	HttpPort        string   `env:"HTTP_PORT" envDefault:"8080"`
 	AdminHash       string   `env:"ADMIN_PASSWORD_HASH,required"`
 	BasePath        string   `env:"CHAT_BASE_PATH" envDefault:"/chat"`
 	BannedNicknames []string `env:"BANNED_NICKNAMES"`
