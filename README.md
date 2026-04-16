@@ -15,7 +15,8 @@ This project supports:
 # Tech Stack
 
 - Go (net/http, html/template)
-- SQLite (via `database/sql`)
+- PostgreSQL
+- SQLite
 - Gorilla WebSocket
 - Chi router
 - htmx
@@ -50,6 +51,7 @@ The server will start on the configured port (default: `:8888`).
 Configuration is done via environment variables:
 
 ```env
+HTTP_PORT='8888'
 CHAT_BASE_PATH='/chat'
 ADMIN_PASSWORD_HASH='paste bcrypt hash of your password here'
 BANNED_NICKNAMES='admin,owner'
