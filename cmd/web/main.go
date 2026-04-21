@@ -7,7 +7,12 @@ import (
 	"net/http"
 
 	"github.com/acakp/dumbchat/config"
-	ch "github.com/acakp/dumbchat/internal/chat"
+	"github.com/acakp/dumbchat/internal/adapter"
+	httpctrl "github.com/acakp/dumbchat/internal/controller/http"
+	v1 "github.com/acakp/dumbchat/internal/controller/http/v1"
+	"github.com/acakp/dumbchat/internal/controller/ws"
+
+	// ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/acakp/dumbchat/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -26,41 +31,28 @@ func main() {
 	fs := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", fs)
 
-	ts := ch.ParseTemplatesCmd()
+	ts := adapter.ParseTemplatesCmd()
 	if ts.Err != nil {
 		log.Fatal(ts.Err)
 	}
 
-	db, errdb := ch.OpenDB(cfg)
+	db, errdb := adapter.OpenDB(cfg)
 	if errdb != nil {
 		log.Fatal(errdb)
 	}
 	defer db.Close()
 
-	if err := ch.CreateTables(db, cfg.DBDriver); err != nil {
+	if err := adapter.CreateTables(db, cfg.DBDriver); err != nil {
 		log.Fatal(err)
 	}
 
-	hub := ch.Hub{
-		IpCounts:   make(map[string]int),
-		Clients:    make(map[*ch.Client]bool),
-		Register:   make(chan *ch.Client),
-		Unregister: make(chan *ch.Client),
-		Broadcast:  make(chan []byte),
-	}
+	hub := ws.New()
 	go hub.Run()
 
-	chatURLs := ch.NewURLs(cfg.BasePath)
-	handler := ch.Handler{
-		Cfg:   cfg,
-		DB:    db,
-		Hub:   &hub,
-		URLs:  chatURLs,
-		Tmpls: &ts,
-	}
+	handler := v1.New(cfg, db, hub, &ts)
 
 	r.Route(cfg.BasePath, func(r chi.Router) {
-		handler.RegisterRoutes(r)
+		httpctrl.RegisterRoutes(r, handler)
 	})
 
 	fmt.Printf("starting on :%s...", cfg.HttpPort)

@@ -35,12 +35,12 @@ func New(db *sql.DB) (*App, error) {
 	if err != nil {
 		return &App{}, fmt.Errorf("Error initializing config for new app (chat.go): %v\n", err)
 	}
-	urls := chat.NewURLs(cfg.BasePath)
 
 	h := &chat.Handler{
-		DB:   db,
-		URLs: urls,
+		Cfg: cfg,
+		DB:  db,
 	}
+	h.URLs = h.CreateURLs()
 
 	return &App{handler: h}, nil
 }
