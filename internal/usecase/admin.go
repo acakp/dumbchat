@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 	"net/http"
+
+	"github.com/acakp/dumbchat/internal/domain"
 )
 
 func IssueAdminSession(w http.ResponseWriter, sessionID string) {
@@ -27,12 +29,12 @@ func IsAdminSession(db *sql.DB, cookie *http.Cookie) error {
 			AND expires_at > CURRENT_TIMESTAMP;
 		`, cookie.Value)
 	if err != nil {
-		return err
+		return fmt.Errorf("error checking admin session in db: %w", err)
 	}
 	defer rows.Close()
 
 	if !rows.Next() {
-		return errors.New("no such session")
+		return fmt.Errorf("error checking admin session: %w", domain.ErrNotFound)
 	}
 
 	return nil

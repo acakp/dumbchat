@@ -13,18 +13,18 @@ func OpenDB(cfg config.Config) (*sql.DB, error) {
 	case "sqlite":
 		db, err := sql.Open("sqlite", "./chat.db")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to connect to database (sqlite): %w", err)
 		}
 		db.SetMaxOpenConns(1)
 		return db, nil
 	case "postgres", "postgresql":
 		db, err := sql.Open("pgx", getPostgresURL(cfg))
 		if err != nil {
-			return nil, fmt.Errorf("Unable to connect to database (postgres): %v\n", err)
+			return nil, fmt.Errorf("unable to connect to database (postgres): %w", err)
 		}
 		return db, nil
 	default:
-		return nil, fmt.Errorf("Unable to connect to database: environment variable 'DB' is invalid")
+		return nil, fmt.Errorf("unable to connect to database: environment variable 'DB' is invalid")
 	}
 }
 

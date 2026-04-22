@@ -2,6 +2,8 @@ package adapter
 
 import (
 	"database/sql"
+	"fmt"
+
 	"github.com/acakp/dumbchat/internal/domain"
 )
 
@@ -18,7 +20,7 @@ func InsertMessage(db *sql.DB, msg domain.Message) (int64, error) {
 		msg.CreatedAt,
 	).Scan(&msgID)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("error inserting messages to db: %w", err)
 	}
 	return int64(msgID), nil
 }

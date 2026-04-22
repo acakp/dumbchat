@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
+	"fmt"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -13,7 +14,7 @@ import (
 func CheckAdminPassword(db *sql.DB, pwd, pwdHash string) (string, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(pwd))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error comparing hash and password: %w", err)
 	}
 	sessionID, _ := newSessionID()
 	// add session id to db
@@ -27,7 +28,7 @@ func CheckAdminPassword(db *sql.DB, pwd, pwdHash string) (string, error) {
 		time.Now().Add(10*time.Hour),
 	)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error saving admin session id to db: %w", err)
 	}
 	return sessionID, nil
 }
@@ -35,5 +36,5 @@ func CheckAdminPassword(db *sql.DB, pwd, pwdHash string) (string, error) {
 func newSessionID() (string, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
-	return hex.EncodeToString(b), err
+	return hex.EncodeToString(b), fmt.Errorf("error generating session id: %w", err)
 }

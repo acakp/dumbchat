@@ -37,7 +37,7 @@ func CreateTables(db *sql.DB, dbName string) error {
 			);
 		`
 	default:
-		return fmt.Errorf("Unable to create db tables: environment variable 'DB' is invalid")
+		return fmt.Errorf("unable to create db tables: environment variable 'DB' is invalid")
 	}
 
 	_, err := db.Exec(query)

@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"fmt"
 	"html/template"
 
 	"github.com/acakp/dumbchat/web"
@@ -17,6 +18,7 @@ func ParseTemplatesCmd() ParsedTemplates {
 	layoutTmpl := template.New("layout")
 	layoutTmpl, err := layoutTmpl.Parse(web.LayoutHTML)
 	if err != nil {
+		err = fmt.Errorf("error parsing templates in ParseTemplatesCmd: %w", err)
 		return ParsedTemplates{err, nil, nil, nil}
 	}
 	return ParseTemplates(layoutTmpl)
@@ -27,6 +29,7 @@ func ParseTemplates(t *template.Template) ParsedTemplates {
 	_, err := t.Parse(web.ChatHTML)
 	_, err = t.Parse(web.MessageHTML)
 	if err != nil {
+		err = fmt.Errorf("error parsing templates: %w", err)
 		return ParsedTemplates{err, nil, nil, nil}
 	}
 	ret.ChatTmpl = t
@@ -34,6 +37,7 @@ func ParseTemplates(t *template.Template) ParsedTemplates {
 	messageTmpl := template.New("msg")
 	messageTmpl, err = messageTmpl.Parse(web.MessageHTML)
 	if err != nil {
+		err = fmt.Errorf("error parsing message template: %w", err)
 		return ParsedTemplates{err, nil, nil, nil}
 	}
 	ret.MessageTmpl = messageTmpl
@@ -41,6 +45,7 @@ func ParseTemplates(t *template.Template) ParsedTemplates {
 	loginTmpl := template.New("login")
 	loginTmpl, err = loginTmpl.Parse(web.LoginHTML)
 	if err != nil {
+		err = fmt.Errorf("error parsing login template: %w", err)
 		return ParsedTemplates{err, nil, nil, nil}
 	}
 	ret.LoginTmpl = loginTmpl

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,8 +12,7 @@ func ExtractMessageID(r *http.Request) (int, error) {
 	id := chi.URLParam(r, "messageID")
 	messageID, err := strconv.Atoi(id)
 	if err != nil {
-		// http.Error(w, "Bad request", http.StatusBadRequest)
-		return -1, err
+		return -1, fmt.Errorf("error extracting message id: %w", err)
 	}
-	return messageID, err
+	return messageID, nil
 }

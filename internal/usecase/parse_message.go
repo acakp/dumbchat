@@ -10,12 +10,12 @@ import (
 func ParseMessage(r *http.Request) (domain.Message, error) {
 	err := r.ParseForm()
 	if err != nil {
-		return domain.Message{}, fmt.Errorf("Error parsing form: ", err)
+		return domain.Message{}, fmt.Errorf("error parsing form: %w", err)
 	}
 
 	msg := ExtractMessageFormValues(r)
 	if msg.Content == "" {
-		return domain.Message{}, fmt.Errorf("Content field is required: ", err)
+		return domain.Message{}, fmt.Errorf("content field is required: %w", err)
 	}
 	return msg, nil
 }
