@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/acakp/dumbchat/config"
+
+	_ "modernc.org/sqlite"
 )
 
 func OpenDB(cfg config.Config) (*sql.DB, error) {

@@ -1,8 +1,7 @@
-package main
+package app
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 
@@ -11,20 +10,12 @@ import (
 	httpctrl "github.com/acakp/dumbchat/internal/controller/http"
 	v1 "github.com/acakp/dumbchat/internal/controller/http/v1"
 	"github.com/acakp/dumbchat/internal/controller/ws"
-
-	// ch "github.com/acakp/dumbchat/internal/chat"
 	"github.com/acakp/dumbchat/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	_ "modernc.org/sqlite"
 )
 
-func main() {
-	cfg, err := config.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func Run(cfg config.Config) error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -33,17 +24,17 @@ func main() {
 
 	ts := adapter.ParseTemplatesCmd()
 	if ts.Err != nil {
-		log.Fatal(ts.Err)
+		return fmt.Errorf("adapter.ParseTemplatesCmd: %w", ts.Err)
 	}
 
-	db, errdb := adapter.OpenDB(cfg)
-	if errdb != nil {
-		log.Fatal(errdb)
+	db, err := adapter.OpenDB(cfg)
+	if err != nil {
+		return fmt.Errorf("adapter.OpenDB: %w", err)
 	}
 	defer db.Close()
 
-	if err := adapter.CreateTables(db, cfg.DBDriver); err != nil {
-		log.Fatal(err)
+	if err = adapter.CreateTables(db, cfg.DBDriver); err != nil {
+		return fmt.Errorf("adapter.CreateTables: %w", err)
 	}
 
 	hub := ws.New()
@@ -57,4 +48,6 @@ func main() {
 
 	fmt.Printf("starting on :%s...", cfg.HttpPort)
 	http.ListenAndServe(net.JoinHostPort("", cfg.HttpPort), r)
+
+	return nil
 }
