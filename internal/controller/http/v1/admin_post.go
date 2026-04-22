@@ -2,31 +2,31 @@ package v1
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/acakp/dumbchat/internal/adapter"
 	"github.com/acakp/dumbchat/internal/usecase"
+	"github.com/acakp/dumbchat/pkg/render"
 	"golang.org/x/crypto/bcrypt"
-	"log"
-	"net/http"
 )
 
 func (h *Handler) AdminPost(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		render.Error(w, err, http.StatusBadRequest, "Error parsing form")
 		return
 	}
 	// extract form value
 	pwd := r.FormValue("password")
 
-	//compare hash and password
+	// compare hash and password
 	sessionID, err := adapter.CheckAdminPassword(h.DB, pwd, h.Cfg.AdminHash)
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			http.Error(w, "Authentication Error", http.StatusUnauthorized)
+			render.Error(w, err, http.StatusUnauthorized, "Authentication Error")
 		} else {
-			log.Fatal(err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			render.Error(w, err, http.StatusInternalServerError, "Internal Server Error")
 		}
 		return
 	}

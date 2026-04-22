@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/acakp/dumbchat/internal/usecase"
+	"github.com/acakp/dumbchat/pkg/render"
 )
 
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
@@ -17,12 +18,13 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 
 	chatView, err := usecase.GetChatView(h.DB, isAdmin, h.URLs)
 	if err != nil {
-		http.Error(w, "Failed to load chat", http.StatusInternalServerError)
+		render.Error(w, err, http.StatusInternalServerError, "Failed to load chat")
 		return
 	}
 
 	err = h.Tmpls.ChatTmpl.Execute(w, chatView)
 	if err != nil {
-		http.Error(w, "Failed to load chat template", http.StatusInternalServerError)
+		render.Error(w, err, http.StatusInternalServerError, "Failed to load chat template")
+		return
 	}
 }

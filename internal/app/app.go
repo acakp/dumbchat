@@ -46,7 +46,7 @@ func Run(cfg config.Config) error {
 		httpctrl.RegisterRoutes(r, handler)
 	})
 
-	fmt.Printf("starting on :%s...", cfg.HttpPort)
+	fmt.Printf("starting on :%s...\n", cfg.HttpPort)
 	http.ListenAndServe(net.JoinHostPort("", cfg.HttpPort), r)
 
 	return nil

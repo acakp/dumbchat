@@ -5,6 +5,7 @@ import (
 
 	"github.com/acakp/dumbchat/config"
 	"github.com/acakp/dumbchat/internal/app"
+	"github.com/acakp/dumbchat/pkg/logger"
 )
 
 func main() {
@@ -12,6 +13,8 @@ func main() {
 	if err != nil {
 		log.Fatal("error initializing config: ", err)
 	}
+
+	logger.Init(cfg.Logger)
 
 	err = app.Run(cfg)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/acakp/dumbchat/internal/adapter"
 	"github.com/acakp/dumbchat/internal/controller/ws"
 	"github.com/acakp/dumbchat/internal/usecase"
+	"github.com/acakp/dumbchat/pkg/render"
 )
 
 func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +18,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 
 	msg, err := usecase.ParseMessage(r)
 	if err != nil {
-		http.Error(w, "Error parsing form, content field may be empty", http.StatusBadRequest)
+		render.Error(w, err, http.StatusBadRequest, "Error parsing form, content field may be empty")
 		return
 	}
 
@@ -31,7 +32,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 	}
 	if isAdmin == false {
 		if err = usecase.ValidateNickname(msg, h.Cfg.BannedNicknames); err != nil {
-			http.Error(w, "Nickname contains prohibited words", http.StatusBadRequest)
+			render.Error(w, err, http.StatusBadRequest, "Nickname contains prohibited words")
 			return
 		}
 	}
@@ -40,7 +41,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 	msg.TruncateMessageContent()
 	msg.ID, err = adapter.InsertMessage(h.DB, msg)
 	if err != nil {
-		http.Error(w, "Failed to save message", http.StatusInternalServerError)
+		render.Error(w, err, http.StatusInternalServerError, "Failed to save message")
 		return
 	}
 

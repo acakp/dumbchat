@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/acakp/dumbchat/pkg/render"
 	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
 )
@@ -19,14 +20,14 @@ func HandleWS(hub *Hub) http.HandlerFunc {
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			http.Error(w, "Error upgrading to websockets", http.StatusUpgradeRequired)
+			render.Error(w, err, http.StatusUpgradeRequired, "Error upgrading to websockets")
 			return
 		}
 
 		clientIp := clientIP(r)
 		err = hub.trackConnection(clientIp)
 		if err != nil {
-			http.Error(w, "Too many connections", http.StatusTooManyRequests)
+			render.Error(w, err, http.StatusTooManyRequests, "Too many connections")
 			return
 		}
 		client := &Client{
