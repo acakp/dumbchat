@@ -18,7 +18,7 @@ func (h *Handler) RenderMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg, err := postgres.GetMessage(h.DB, messageID)
+	msg, err := postgres.GetMessage(h.DBPool, messageID)
 	if err != nil {
 		if errors.Is(err, domain.ErrMessageNotFound) {
 			render.Error(w, err, http.StatusNotFound, "Message not found")

@@ -26,7 +26,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("admin_session")
 	isAdmin := false
 	if err == nil {
-		if err = usecase.IsAdminSession(h.DB, c); err == nil {
+		if err = postgres.IsAdminSession(h.DBPool, c); err == nil {
 			isAdmin = true
 		}
 	}
@@ -39,7 +39,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 
 	// process the form data
 	msg.TruncateMessageContent()
-	msg.ID, err = postgres.InsertMessage(h.DB, msg)
+	msg.ID, err = postgres.InsertMessage(h.DBPool, msg)
 	if err != nil {
 		render.Error(w, err, http.StatusInternalServerError, "Failed to save message")
 		return

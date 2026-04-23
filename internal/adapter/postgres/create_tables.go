@@ -1,10 +1,12 @@
 package postgres
 
 import (
-	"database/sql"
+	"context"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func CreateTables(db *sql.DB) error {
+func CreateTables(db *pgxpool.Pool) error {
 	var query string
 	query = `
 		CREATE TABLE IF NOT EXISTS messages (
@@ -20,6 +22,6 @@ func CreateTables(db *sql.DB) error {
 		);
 	`
 
-	_, err := db.Exec(query)
+	_, err := db.Exec(context.Background(), query)
 	return err
 }

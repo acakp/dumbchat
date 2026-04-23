@@ -28,20 +28,20 @@ func Run(cfg config.Config) error {
 		return fmt.Errorf("templates.ParseTemplatesCmd: %w", ts.Err)
 	}
 
-	db, err := postgres.OpenDB(cfg.DBConfig)
+	dbpool, err := postgres.New(cfg.DBConfig)
 	if err != nil {
 		return fmt.Errorf("templates.OpenDB: %w", err)
 	}
-	defer db.Close()
+	defer dbpool.Close()
 
-	if err = postgres.CreateTables(db); err != nil {
+	if err = postgres.CreateTables(dbpool); err != nil {
 		return fmt.Errorf("templates.CreateTables: %w", err)
 	}
 
 	hub := ws.New()
 	go hub.Run()
 
-	handler := v1.New(cfg, db, hub, &ts)
+	handler := v1.New(cfg, dbpool, hub, &ts)
 
 	r.Route(cfg.BasePath, func(r chi.Router) {
 		httpctrl.RegisterRoutes(r, handler)

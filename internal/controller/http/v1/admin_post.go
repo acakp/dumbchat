@@ -21,7 +21,7 @@ func (h *Handler) AdminPost(w http.ResponseWriter, r *http.Request) {
 	pwd := r.FormValue("password")
 
 	// compare hash and password
-	sessionID, err := postgres.CheckAdminPassword(h.DB, pwd, h.Cfg.AdminHash)
+	sessionID, err := postgres.CheckAdminPassword(h.DBPool, pwd, h.Cfg.AdminHash)
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			render.Error(w, err, http.StatusUnauthorized, "Authentication Error")

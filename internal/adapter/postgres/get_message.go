@@ -1,14 +1,15 @@
 package postgres
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
 	"github.com/acakp/dumbchat/internal/domain"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetMessage(db *sql.DB, messageID int) (domain.Message, error) {
-	rows, err := db.Query(`
+func GetMessage(db *pgxpool.Pool, messageID int) (domain.Message, error) {
+	rows, err := db.Query(context.Background(), `
 		SELECT id, nickname, content, created_at
 		FROM messages WHERE id=$1;
 	`, messageID)

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -9,14 +8,15 @@ import (
 	"github.com/acakp/dumbchat/internal/adapter/templates"
 	"github.com/acakp/dumbchat/internal/controller/ws"
 	"github.com/acakp/dumbchat/internal/domain"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Handler struct {
-	Cfg   config.Config
-	DB    *sql.DB
-	Hub   *ws.Hub
-	URLs  domain.URLs
-	Tmpls *templates.ParsedTemplates
+	Cfg    config.Config
+	DBPool *pgxpool.Pool
+	Hub    *ws.Hub
+	URLs   domain.URLs
+	Tmpls  *templates.ParsedTemplates
 }
 
 func createURLs(cfg config.Config) domain.URLs {
@@ -34,13 +34,13 @@ func createURLs(cfg config.Config) domain.URLs {
 	}
 }
 
-func New(cfg config.Config, db *sql.DB, hub *ws.Hub, tmpls *templates.ParsedTemplates) *Handler {
+func New(cfg config.Config, dbpool *pgxpool.Pool, hub *ws.Hub, tmpls *templates.ParsedTemplates) *Handler {
 	return &Handler{
-		Cfg:   cfg,
-		DB:    db,
-		Hub:   hub,
-		URLs:  createURLs(cfg),
-		Tmpls: tmpls,
+		Cfg:    cfg,
+		DBPool: dbpool,
+		Hub:    hub,
+		URLs:   createURLs(cfg),
+		Tmpls:  tmpls,
 	}
 }
 

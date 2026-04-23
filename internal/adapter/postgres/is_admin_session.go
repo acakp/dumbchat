@@ -1,28 +1,16 @@
-package usecase
+package postgres
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/acakp/dumbchat/internal/domain"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func IssueAdminSession(w http.ResponseWriter, sessionID string) {
-	cookie := &http.Cookie{
-		Name:     "admin_session",
-		Value:    sessionID,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   36000, // 10h
-	}
-	http.SetCookie(w, cookie)
-}
-
-func IsAdminSession(db *sql.DB, cookie *http.Cookie) error {
-	rows, err := db.Query(`
+func IsAdminSession(db *pgxpool.Pool, cookie *http.Cookie) error {
+	rows, err := db.Query(context.Background(), `
 			SELECT id, expires_at
 			FROM admin_sessions
 			WHERE id = $1

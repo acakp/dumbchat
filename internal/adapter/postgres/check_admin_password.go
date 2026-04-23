@@ -1,17 +1,18 @@
 package postgres
 
 import (
+	"context"
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CheckAdminPassword(db *sql.DB, pwd, pwdHash string) (string, error) {
+func CheckAdminPassword(db *pgxpool.Pool, pwd, pwdHash string) (string, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(pwd))
 	if err != nil {
 		return "", fmt.Errorf("error comparing hash and password: %w", err)
@@ -22,7 +23,7 @@ func CheckAdminPassword(db *sql.DB, pwd, pwdHash string) (string, error) {
 		INSERT INTO admin_sessions (id, expires_at)
 		VALUES ($1, $2);
 		`
-	_, err = db.Exec(
+	_, err = db.Exec(context.Background(),
 		query,
 		sessionID,
 		time.Now().Add(10*time.Hour),

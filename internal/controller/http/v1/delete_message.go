@@ -18,8 +18,8 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		render.Error(w, err, http.StatusBadRequest, "Bad request")
 		return
 	}
-	msg, err := postgres.GetMessage(h.DB, messageID)
-	err = postgres.DeleteMessage(h.DB, messageID)
+	msg, err := postgres.GetMessage(h.DBPool, messageID)
+	err = postgres.DeleteMessage(h.DBPool, messageID)
 	if err != nil {
 		if errors.Is(err, domain.ErrMessageNotFound) {
 			render.Error(w, err, http.StatusNotFound, "Message not found")
