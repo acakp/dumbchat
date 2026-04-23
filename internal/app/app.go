@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/acakp/dumbchat/config"
-	"github.com/acakp/dumbchat/internal/adapter"
+	"github.com/acakp/dumbchat/internal/adapter/postgres"
+	"github.com/acakp/dumbchat/internal/adapter/templates"
 	httpctrl "github.com/acakp/dumbchat/internal/controller/http"
 	v1 "github.com/acakp/dumbchat/internal/controller/http/v1"
 	"github.com/acakp/dumbchat/internal/controller/ws"
@@ -22,19 +23,19 @@ func Run(cfg config.Config) error {
 	fs := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", fs)
 
-	ts := adapter.ParseTemplatesCmd()
+	ts := templates.ParseTemplatesCmd()
 	if ts.Err != nil {
-		return fmt.Errorf("adapter.ParseTemplatesCmd: %w", ts.Err)
+		return fmt.Errorf("templates.ParseTemplatesCmd: %w", ts.Err)
 	}
 
-	db, err := adapter.OpenDB(cfg.DBConfig)
+	db, err := postgres.OpenDB(cfg.DBConfig)
 	if err != nil {
-		return fmt.Errorf("adapter.OpenDB: %w", err)
+		return fmt.Errorf("templates.OpenDB: %w", err)
 	}
 	defer db.Close()
 
-	if err = adapter.CreateTables(db, cfg.DBConfig.DBDriver); err != nil {
-		return fmt.Errorf("adapter.CreateTables: %w", err)
+	if err = postgres.CreateTables(db); err != nil {
+		return fmt.Errorf("templates.CreateTables: %w", err)
 	}
 
 	hub := ws.New()

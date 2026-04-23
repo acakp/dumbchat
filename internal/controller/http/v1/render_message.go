@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/acakp/dumbchat/internal/adapter"
+	"github.com/acakp/dumbchat/internal/adapter/postgres"
 	"github.com/acakp/dumbchat/internal/domain"
 	"github.com/acakp/dumbchat/internal/usecase"
 	"github.com/acakp/dumbchat/pkg/render"
@@ -18,7 +18,7 @@ func (h *Handler) RenderMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg, err := adapter.GetMessage(h.DB, messageID)
+	msg, err := postgres.GetMessage(h.DB, messageID)
 	if err != nil {
 		if errors.Is(err, domain.ErrMessageNotFound) {
 			render.Error(w, err, http.StatusNotFound, "Message not found")

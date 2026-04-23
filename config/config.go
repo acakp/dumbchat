@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/acakp/dumbchat/internal/adapter"
+	"github.com/acakp/dumbchat/internal/adapter/postgres"
 	"github.com/acakp/dumbchat/pkg/logger"
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	Logger          logger.Config
-	DBConfig        adapter.Config
+	DBConfig        postgres.Config
 	HttpPort        string   `env:"HTTP_PORT" envDefault:"8080"`
 	AdminHash       string   `env:"ADMIN_PASSWORD_HASH,required"`
 	BasePath        string   `env:"CHAT_BASE_PATH" envDefault:"/chat"`

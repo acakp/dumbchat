@@ -1,7 +1,6 @@
-package adapter
+package postgres
 
 type Config struct {
-	DBDriver   string `env:"DB" envDefault:"sqlite"`
 	PGHost     string `env:"PGHOST"`
 	PGPort     string `env:"PGPORT"`
 	PGDBName   string `env:"PGDBNAME"`

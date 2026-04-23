@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/acakp/dumbchat/config"
-	"github.com/acakp/dumbchat/internal/adapter"
+	"github.com/acakp/dumbchat/internal/adapter/templates"
 	"github.com/acakp/dumbchat/internal/controller/ws"
 	"github.com/acakp/dumbchat/internal/domain"
 )
@@ -16,7 +16,7 @@ type Handler struct {
 	DB    *sql.DB
 	Hub   *ws.Hub
 	URLs  domain.URLs
-	Tmpls *adapter.ParsedTemplates
+	Tmpls *templates.ParsedTemplates
 }
 
 func createURLs(cfg config.Config) domain.URLs {
@@ -34,7 +34,7 @@ func createURLs(cfg config.Config) domain.URLs {
 	}
 }
 
-func New(cfg config.Config, db *sql.DB, hub *ws.Hub, tmpls *adapter.ParsedTemplates) *Handler {
+func New(cfg config.Config, db *sql.DB, hub *ws.Hub, tmpls *templates.ParsedTemplates) *Handler {
 	return &Handler{
 		Cfg:   cfg,
 		DB:    db,

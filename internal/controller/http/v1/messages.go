@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/acakp/dumbchat/internal/adapter"
+	"github.com/acakp/dumbchat/internal/adapter/postgres"
 	"github.com/acakp/dumbchat/internal/controller/ws"
 	"github.com/acakp/dumbchat/internal/usecase"
 	"github.com/acakp/dumbchat/pkg/render"
@@ -39,7 +39,7 @@ func (h *Handler) Messages(w http.ResponseWriter, r *http.Request) {
 
 	// process the form data
 	msg.TruncateMessageContent()
-	msg.ID, err = adapter.InsertMessage(h.DB, msg)
+	msg.ID, err = postgres.InsertMessage(h.DB, msg)
 	if err != nil {
 		render.Error(w, err, http.StatusInternalServerError, "Failed to save message")
 		return
