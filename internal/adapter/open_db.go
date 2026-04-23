@@ -3,12 +3,11 @@ package adapter
 import (
 	"database/sql"
 	"fmt"
-	"github.com/acakp/dumbchat/config"
 
 	_ "modernc.org/sqlite"
 )
 
-func OpenDB(cfg config.Config) (*sql.DB, error) {
+func OpenDB(cfg Config) (*sql.DB, error) {
 	switch cfg.DBDriver {
 	case "sqlite":
 		db, err := sql.Open("sqlite", "./chat.db")
@@ -28,7 +27,7 @@ func OpenDB(cfg config.Config) (*sql.DB, error) {
 	}
 }
 
-func getPostgresURL(cfg config.Config) string {
+func getPostgresURL(cfg Config) string {
 	url := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", cfg.PGHost, cfg.PGPort, cfg.PGDBName, cfg.PGUser, cfg.PGPassword)
 	return url
 }

@@ -27,13 +27,13 @@ func Run(cfg config.Config) error {
 		return fmt.Errorf("adapter.ParseTemplatesCmd: %w", ts.Err)
 	}
 
-	db, err := adapter.OpenDB(cfg)
+	db, err := adapter.OpenDB(cfg.DBConfig)
 	if err != nil {
 		return fmt.Errorf("adapter.OpenDB: %w", err)
 	}
 	defer db.Close()
 
-	if err = adapter.CreateTables(db, cfg.DBDriver); err != nil {
+	if err = adapter.CreateTables(db, cfg.DBConfig.DBDriver); err != nil {
 		return fmt.Errorf("adapter.CreateTables: %w", err)
 	}
 
