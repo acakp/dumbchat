@@ -16,7 +16,6 @@ This project supports:
 
 - Go (net/http, html/template)
 - PostgreSQL
-- SQLite
 - Gorilla WebSocket
 - Chi router
 - htmx
@@ -42,7 +41,7 @@ GOOS=linux GOARCH=amd64 go build -o dumbchat
 ./dumbchat
 ```
 
-The server will start on the configured port (default: `:8888`).
+The server will start on the configured port (default: `:8080`).
 
 ---
 
@@ -55,9 +54,10 @@ HTTP_PORT='8888'
 CHAT_BASE_PATH='/chat'
 ADMIN_PASSWORD_HASH='paste bcrypt hash of your password here'
 BANNED_NICKNAMES='admin,owner'
-# 'sqlite' or 'postgres'
-DB='sqlite'
-# only if you use postgres:
+
+LOGGER_LEVEL='info'
+LOGGER_PRETTY_CONSOLE=false
+
 PGHOST='localhost'
 PGPORT='5432'
 PGDBNAME='dumbchat'
