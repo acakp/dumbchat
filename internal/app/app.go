@@ -13,12 +13,10 @@ import (
 	"github.com/acakp/dumbchat/internal/controller/ws"
 	"github.com/acakp/dumbchat/web"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 func Run(cfg config.Config) error {
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
 
 	fs := http.FileServer(http.FS(web.StaticFS))
 	r.Handle("/static/*", fs)
