@@ -47,7 +47,7 @@ The server will start on the configured port (default: `:8080`).
 
 # Configuration
 
-Configuration is done via environment variables:
+Configuration is done via environment variables. See `.env.example` for details.
 
 ```env
 HTTP_PORT='8888'
